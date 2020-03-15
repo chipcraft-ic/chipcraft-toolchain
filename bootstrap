@@ -1,0 +1,60 @@
+#! /usr/bin/env sh
+
+# at least on CentOS 6 the default autotools v2.63
+# can't properly include local macros
+# instead of autoreconf -i, execute the commands below:
+
+function generate () {
+  aclocal -I m4
+  automake -a -c
+  autoconf -I m4
+}
+
+function clean () {
+  local readonly FILES=" \
+    aclocal.m4 \
+    autom4te.cache \
+    config.guess \
+    config.sub \
+    configure \
+    install-sh \
+    Makefile.in \
+    missing \
+  "
+  rm -rf ${FILES}
+}
+
+function help () {
+  cat << EOF
+Usage: bootstrap [-c] [-h]
+  Prepare project for configuration.
+  Options:
+              -c     remove all bootstrap artifacts
+              -h     show this help
+EOF
+}
+
+function main () {
+  while getopts ch OPT; do
+    case "$OPT" in
+      c)
+        echo "cleaning bootstrap artifacts"
+        clean
+        exit 0
+        ;;
+      h)
+        help
+        exit 0
+        ;;
+      \?)
+        help
+        exit 1
+        ;;
+    esac
+  done
+  echo "bootstrapping the project"
+  generate
+}
+
+main $@
+
