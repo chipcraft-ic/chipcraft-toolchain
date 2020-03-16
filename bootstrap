@@ -4,6 +4,31 @@
 # can't properly include local macros
 # instead of autoreconf -i, execute the commands below:
 
+function check_requirement () {
+  local readonly REQUIREMENT="${1}"
+  local RESULT=0
+
+  if test "x$(command -v ${REQUIREMENT})" = "x"
+  then
+    echo "missing requirement: ${REQUIREMENT}"
+    RESULT=1
+  fi
+
+  return ${RESULT}
+}
+
+function requirements () {
+  local RESULT=0
+  check_requirement aclocal || RESULT=1
+  check_requirement automake || RESULT=1
+  check_requirement autoconf || RESULT=1
+
+  if test "x${RESULT}" = "x1"
+  then
+    exit 1
+  fi
+}
+
 function generate () {
   aclocal -I m4
   automake -a -c
@@ -22,6 +47,7 @@ function clean () {
     config.sub \
     configure \
     install-sh \
+    localroot \
     Makefile.in \
     Makefile \
     missing \
@@ -58,6 +84,9 @@ function main () {
         ;;
     esac
   done
+
+  echo "checking requirements"
+  requirements
   echo "bootstrapping the project"
   generate
 }
