@@ -14,12 +14,12 @@ EXTRA_DIST = \
 
 # directory where 3rd party tools used for
 # building the toolchain shall be installed
-LOCALROOT = localroot
+LOCALROOT = $(abs_top_builddir)/localroot
 # directory where finished toolchains will be installed
 OUTPUTROOT = $(abs_top_builddir)/outputroot
 
-
-$(abs_top_srcdir)/configure: configure.ac aclocal.m4
+# handle changes in configure.ac
+$(abs_top_srcdir)/configure: $(abs_top_srcdir)/configure.ac $(abs_top_srcdir)/aclocal.m4
 	$(CD) '$(abs_top_srcdir)' \
 	&& autoconf -I m4 \
 	$(EOL)
@@ -86,7 +86,12 @@ $(LOCALROOT)/toolchain/mips/linux/.config: $(abs_top_srcdir)/resources/configs/m
 	$< > $@ \
 	$(EOL)
 
-LINUX_DEPENDENCY = $(LOCALROOT)/toolchain/linux/.config
+$(OUTPUTROOT)/$(LINUX_TRIPLET): $(LOCALROOT)/toolchain/mips/linux/.config $(LOCALROOT)/bin/ct-ng
+	$(CD) $(dir $(word 1,$^)) \
+	&& $(word 2,$^) build \
+	$(EOL)
+
+LINUX_DEPENDENCY = $(OUTPUTROOT)/$(LINUX_TRIPLET)
 else !LINUX_TOOLCHAIN
 LINUX_DEPENDENCY =
 endif !LINUX_TOOLCHAIN
@@ -116,9 +121,15 @@ $(LOCALROOT)/toolchain/mips/windows/.config: $(abs_top_srcdir)/resources/configs
 	$< > $@ \
 	$(EOL)
 
-WINDOWS_DEPENDENCY = $(LOCALROOT)/toolchain/windows/.config
+$(OUTPUTROOT)/$(WINDOWS_TRIPLET): $(LOCALROOT)/toolchain/mips/windows/.config $(LOCALROOT)/bin/ct-ng
+	$(CD) $(dir $(word 1,$^)) \
+	&& $(word 2,$^) build \
+	$(EOL)
+
+WINDOWS_DEPENDENCY = $(OUTPUTROOT)/$(WINDOWS_TRIPLET)
 else !WINDOWS_TOOLCHAIN
 WINDOWS_DEPENDENCY =
 endif !WINDOWS_TOOLCHAIN
 
+all: $(LINUX_DEPENDENCY) $(WINDOWS_DEPENDENCY)
 
