@@ -22,7 +22,8 @@ $(abs_top_srcdir)/configure: configure.ac aclocal.m4
 	$(EOL)
 
 # this requires $(CT_NG_SRCDIR) to be writable
-# TODO: think of some way to work around this
+# however default path points to builddir
+# which should always be writable
 $(CT_NG_SRCDIR)/configure: $(CT_NG_SRCDIR)/bootstrap
 	$(IS_DIR) '$(CT_NG_SRCDIR)'
 	$(CD) '$(CT_NG_SRCDIR)' \
@@ -32,7 +33,8 @@ $(CT_NG_SRCDIR)/configure: $(CT_NG_SRCDIR)/bootstrap
 $(LOCALROOT)/build/ct-ng/Makefile: $(CT_NG_SRCDIR)/configure
 	$(MKDIR_P) $(dir $@)
 	$(CD) '$(dir $@)' \
-	&& $(CT_NG_SRCDIR)/configure --prefix $(LOCALROOT) \
+	&& $(CT_NG_SRCDIR)/configure \
+	  --prefix $(abs_top_builddir)/$(LOCALROOT) \
 	$(EOL)
 
 $(LOCALROOT)/bin/ct-ng: $(LOCALROOT)/build/ct-ng/Makefile

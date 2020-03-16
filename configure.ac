@@ -31,6 +31,8 @@ dnl start configuration of the project
 
 dnl ensure we know where the sources are
 AS_VAR_SET(ABS_TOP_SRCDIR, `cd ${srcdir} && pwd`)
+dnl assume pwd is the build directory
+AS_VAR_SET(ABS_TOP_BUILDDIR, `pwd`)
 
 dnl dependency checks
 
@@ -61,17 +63,17 @@ dnl TODO: change locations from /home/... to github
 dnl call: AX_CHIPCRAFT_CHECK_DEPENDENCY([</path/to/check/],
 dnl         [<git repo to clone>]
 dnl       )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/mips-binutils-gdb],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-binutils-gdb],
   [/home/mjemieli/NG/chipcraft/chipcraft-mips-binutils-gdb/],
   [MIPS_BINUTILS_GDB_SRCDIR]dnl
 )
 AC_SUBST(MIPS_BINUTILS_GDB_SRCDIR)
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/mips-gcc],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-gcc],
   [/home/mjemieli/NG/chipcraft/chipcraft-mips-gcc/],
   [MIPS_GCC_SRCDIR]dnl
 )
 AC_SUBST(MIPS_GCC_SRCDIR)
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/mips-newlib],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-newlib],
   [/home/mjemieli/NG/chipcraft/chipcraft-mips-newlib/],
   [MIPS_NEWLIB_SRCDIR]dnl
 )
@@ -94,7 +96,7 @@ dnl )
 dnl AC_SUBST(RISCV_NEWLIB_SRCDIR)
 
 dnl check whether our patched crosstool-ng is present
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/tools/chipcraft-crosstool-ng],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/tools/chipcraft-crosstool-ng],
   [/home/mjemieli/NG/chipcraft/chipcraft-crosstool-ng/],
   [CT_NG_SRCDIR]dnl
 )
