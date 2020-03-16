@@ -15,12 +15,25 @@ EXTRA_DIST = \
 # directory where 3rd party tools used for
 # building the toolchain shall be installed
 LOCALROOT = localroot
+# directory where finished toolchains will be installed
+OUTPUTROOT = $(abs_top_builddir)/outputroot
+
 
 $(abs_top_srcdir)/configure: configure.ac aclocal.m4
 	$(CD) '$(abs_top_srcdir)' \
 	&& autoconf -I m4 \
 	$(EOL)
 
+if CT_NG_ALREADY_BUILT
+# when installing we force prefix because
+# we have been given an already configured and built ct-ng sources
+$(LOCALROOT)/bin/ct-ng: $(CT_NG_SRCDIR)/Makefile $(CT_NG_SRCDIR)/ct-ng
+	$(MKDIR_P) $(LOCALROOT)
+	$(MAKE) -C '$(CT_NG_SRCDIR)' \
+	  prefix=$(abs_top_builddir)/$(LOCALROOT) \
+	  install \
+	  $(EOF)
+else !CT_NG_ALREADY_BUILT
 # this requires $(CT_NG_SRCDIR) to be writable
 # however default path points to builddir
 # which should always be writable
@@ -37,16 +50,23 @@ $(LOCALROOT)/build/ct-ng/Makefile: $(CT_NG_SRCDIR)/configure
 	  --prefix $(abs_top_builddir)/$(LOCALROOT) \
 	$(EOL)
 
+# when installing we force prefix because
+# we may have been given an already configured ct-ng sources
 $(LOCALROOT)/bin/ct-ng: $(LOCALROOT)/build/ct-ng/Makefile
 	$(IS_DIR) '$(LOCALROOT)/build/ct-ng'
 	$(MAKE) -C '$(LOCALROOT)/build/ct-ng'
-	$(MAKE) -C '$(LOCALROOT)/build/ct-ng' install
+	$(MAKE) -C '$(LOCALROOT)/build/ct-ng' \
+	  prefix=$(abs_top_builddir)/$(LOCALROOT) \
+	  install \
+	  $(EOF)
+endif !CT_NG_ALREADY_BUILT
 
 if LINUX_TOOLCHAIN
 $(LOCALROOT)/toolchain/mips/linux/.config: $(abs_top_srcdir)/resources/configs/mips.in
 	$(MKDIR_P) $(dir $@)
 	$(SED) \
 	  " \
+	    s|@OUTPUTROOT@|$(OUTPUTROOT)|; \
 	    s|@MAKE_JOBS@|$(shell nproc)|; \
 	    s|@LIBC_SO_PATH@|$(shell \
 	      find /usr/ -path "*/libc.so" -printf "%h" -quit \
@@ -76,6 +96,7 @@ $(LOCALROOT)/toolchain/mips/windows/.config: $(abs_top_srcdir)/resources/configs
 	$(MKDIR_P) $(dir $@)
 	$(SED) \
 	  " \
+	    s|@OUTPUTROOT@|$(OUTPUTROOT)|; \
 	    s|@MAKE_JOBS@|$(shell nproc)|; \
 	    s|@LIBC_SO_PATH@|$(shell \
 	      find /usr/ -path "*/libc.so" -printf "%h" -quit \

@@ -102,7 +102,12 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/tools/chipcraft-crosstool-ng]
   [CT_NG_SRCDIR]dnl
 )
 AC_SUBST(CT_NG_SRCDIR)
-
+dnl given crosstool-ng may have already been built
+dnl in that case we will only install it to known
+dnl location during make step
+AM_CONDITIONAL([CT_NG_ALREADY_BUILT],
+  [AS_EXECUTABLE_P(${CT_NG_SRCDIR}/ct-ng)]dnl
+)
 
 dnl configure what should be built
 
