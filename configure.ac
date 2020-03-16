@@ -35,8 +35,9 @@ AS_VAR_SET(ABS_TOP_SRCDIR, `cd ${srcdir} && pwd`)
 dnl dependency checks
 
 AC_PROG_CC dnl we need a compiler
-AC_PROG_SED dnl check for sed
 AC_PROG_LN_S dnl check for a way to create links
+AC_PROG_MKDIR_P dnl check for a way to create directories
+AC_PROG_SED dnl check for sed
 
 dnl check that git supports 'git ls-remote --exit-code'
 dnl this macro used only for custom error messages
@@ -60,30 +61,44 @@ dnl TODO: change locations from /home/... to github
 dnl call: AX_CHIPCRAFT_CHECK_DEPENDENCY([</path/to/check/],
 dnl         [<git repo to clone>]
 dnl       )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([components/mips-binutils-gdb],
-  [/home/mjemieli/NG/chipcraft/chipcraft-mips-binutils-gdb/]dnl
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/mips-binutils-gdb],
+  [/home/mjemieli/NG/chipcraft/chipcraft-mips-binutils-gdb/],
+  [MIPS_BINUTILS_GDB_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([components/mips-gcc],
-  [/home/mjemieli/NG/chipcraft/chipcraft-mips-gcc/]dnl
+AC_SUBST(MIPS_BINUTILS_GDB_SRCDIR)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/mips-gcc],
+  [/home/mjemieli/NG/chipcraft/chipcraft-mips-gcc/],
+  [MIPS_GCC_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([components/mips-newlib],
-  [/home/mjemieli/NG/chipcraft/chipcraft-mips-newlib/]dnl
+AC_SUBST(MIPS_GCC_SRCDIR)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/mips-newlib],
+  [/home/mjemieli/NG/chipcraft/chipcraft-mips-newlib/],
+  [MIPS_NEWLIB_SRCDIR]dnl
 )
+AC_SUBST(MIPS_NEWLIB_SRCDIR)
 dnl TODO: future RISC-V extensions
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([components/riscv-binutils-gdb],
-dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-binutils-gdb/]dnl
+dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-binutils-gdb],
+dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-binutils-gdb/],
+dnl   [RISCV_BINUTILS_GDB_SRCDIR]dnl
 dnl )
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([components/riscv-gcc],
-dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-gcc/]dnl
+dnl AC_SUBST(RISCV_BINUTILS_GDB_SRCDIR)
+dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-gcc],
+dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-gcc/],
+dnl   [RISCV_GCC_SRCDIR]dnl
 dnl )
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([components/riscv-newlib],
-dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-newlib/]dnl
+dnl AC_SUBST(RISCV_GCC_SRCDIR)
+dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-newlib],
+dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-newlib/],
+dnl   [RISCV_NEWLIB_SRCDIR]dnl
 dnl )
+dnl AC_SUBST(RISCV_NEWLIB_SRCDIR)
 
 dnl check whether our patched crosstool-ng is present
-AX_CHIPCRAFT_CHECK_DEPENDENCY([tools/chipcraft-crosstool-ng],
-  [/home/mjemieli/NG/chipcraft/chipcraft-crosstool-ng/]dnl
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/tools/chipcraft-crosstool-ng],
+  [/home/mjemieli/NG/chipcraft/chipcraft-crosstool-ng/],
+  [CT_NG_SRCDIR]dnl
 )
+AC_SUBST(CT_NG_SRCDIR)
 
 
 dnl configure what should be built

@@ -1,14 +1,14 @@
 dnl AX_CHIPCRAFT_CHECK_DEPENDENCY(
 dnl   DEFAULT_INSTALLATION_DIRECTORY,
-dnl   GIT_SOURCE_REPOSITORY
+dnl   GIT_SOURCE_REPOSITORY,
+dnl   [OPTIONAL_OUTPUT_VARIABLE]
 dnl )
 dnl ----------------------------------------------
 dnl DEFAULT_INSTALLATION_DIRECTORY is in the form:
 dnl   /absolute/path/to/directory
-dnl or
-dnl   relative/path/to/directory
 dnl GIT_SOURCE_REPOSITORY is in the form of git url
 dnl as understood by git-clone.
+dnl OPTIONAL_OUTPUT_VARIABLE is in the form of shell variable name.
 dnl
 dnl Execute:
 dnl 1. create an argument --with-...-path;
@@ -23,6 +23,7 @@ dnl    any files in the list: configure, configure.ac
 dnl 3. if the previous was not true, use git to clone
 dnl    repository given in GIT_SOURCE_REPOSITORY to the
 dnl    path given as first argument
+dnl 4. if optional output variable is given, set it to value of the given path.
 dnl It is assumed that location given via --with-...-path
 dnl either contains the files or is writable.
 dnl
@@ -49,6 +50,9 @@ AC_DEFUN([AX_CHIPCRAFT_CHECK_DEPENDENCY],
           [AC_MSG_ERROR([BASENAME project is not valid])]dnl
         )
       ]
+    )
+    AS_IF([test "x$3" != "x"],
+      [AS_VAR_SET($3, "${ax_chipcraft_dependency_path}")]dnl
     )
     AS_UNSET([ax_chipcraft_dependency_path])
     m4_popdef([HELP_STRING])
