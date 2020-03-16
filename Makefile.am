@@ -16,18 +16,10 @@ EXTRA_DIST = \
 # building the toolchain shall be installed
 LOCALROOT = localroot
 
-aclocal.m4:
-	$(CD) '$(abs_top_srcdir)' \
-	&& aclocal -I m4 \
-	$(EOL)
-
 $(abs_top_srcdir)/configure: configure.ac aclocal.m4
 	$(CD) '$(abs_top_srcdir)' \
 	&& autoconf -I m4 \
 	$(EOL)
-
-config.status: configure
-	./config.status --recheck
 
 # this requires $(CT_NG_SRCDIR) to be writable
 # TODO: think of some way to work around this
@@ -53,15 +45,15 @@ $(LOCALROOT)/toolchain/mips/linux/.config: $(abs_top_srcdir)/resources/configs/m
 	$(MKDIR_P) $(dir $@)
 	$(SED) \
 	  " \
-	    s/@MAKE_JOBS@/$(shell nproc)/; \
-	    s/@LIBC_SO_PATH@/$(shell find /usr/ -path "*/libc.so" 2>/dev/null | head -1)/; \
-	    s/@LIBM_A_PATH@/$(shell find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" 2>/dev/null | head -1)/; \
-	    s/@BUILD_TRIPLET@/$(LINUX_TRIPLET)/; \
-	    s/@HOST_TRIPLET@/$(LINUX_TRIPLET)/; \
-	    s/@BINUTILS_URL@/$(MIPS_BINUTILS_GDB_SRCDIR)/; \
-	    s/@NEWLIB_URL@/$(MIPS_NEWLIB_SRCDIR)/; \
-	    s/@GCC_URL@/$(MIPS_GCC_SRCDIR)/; \
-	    s/@GDB_URL@/$(MIPS_BINUTILS_GDB_SRCDIR)/; \
+	    s|@MAKE_JOBS@|$(shell nproc)|; \
+	    s|@LIBC_SO_PATH@|$(shell find /usr/ -path "*/libc.so" 2>/dev/null | head -1)|; \
+	    s|@LIBM_A_PATH@|$(shell find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" 2>/dev/null | head -1)|; \
+	    s|@BUILD_TRIPLET@|$(LINUX_TRIPLET)|; \
+	    s|@HOST_TRIPLET@|$(LINUX_TRIPLET)|; \
+	    s|@BINUTILS_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
+	    s|@NEWLIB_URL@|$(MIPS_NEWLIB_SRCDIR)|; \
+	    s|@GCC_URL@|$(MIPS_GCC_SRCDIR)|; \
+	    s|@GDB_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
 	  " \
 	$< > $@ \
 	$(EOL)
@@ -76,15 +68,15 @@ $(LOCALROOT)/toolchain/mips/windows/.config: $(abs_top_srcdir)/resources/configs
 	$(MKDIR_P) $(dir $@)
 	$(SED) \
 	  " \
-	    s/@MAKE_JOBS@/$(shell nproc)/; \
-	    s/@LIBC_SO_PATH@/$(shell find /usr/ -path "*/libc.so" 2>/dev/null | head -1)/; \
-	    s/@LIBM_A_PATH@/$(shell find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" 2>/dev/null | head -1)/; \
-	    s/@BUILD_TRIPLET@/$(LINUX_TRIPLET)/; \
-	    s/@HOST_TRIPLET@/$(WINDOWS_TRIPLET)/; \
-	    s/@BINUTILS_URL@/$(MIPS_BINUTILS_GDB_SRCDIR)/; \
-	    s/@NEWLIB_URL@/$(MIPS_NEWLIB_SRCDIR)/; \
-	    s/@GCC_URL@/$(MIPS_GCC_SRCDIR)/; \
-	    s/@GDB_URL@/$(MIPS_BINUTILS_GDB_SRCDIR)/; \
+	    s|@MAKE_JOBS@|$(shell nproc)|; \
+	    s|@LIBC_SO_PATH@|$(shell find /usr/ -path "*/libc.so" 2>/dev/null | head -1)|; \
+	    s|@LIBM_A_PATH@|$(shell find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" 2>/dev/null | head -1)|; \
+	    s|@BUILD_TRIPLET@|$(LINUX_TRIPLET)|; \
+	    s|@HOST_TRIPLET@|$(WINDOWS_TRIPLET)|; \
+	    s|@BINUTILS_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
+	    s|@NEWLIB_URL@|$(MIPS_NEWLIB_SRCDIR)|; \
+	    s|@GCC_URL@|$(MIPS_GCC_SRCDIR)|; \
+	    s|@GDB_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
 	  " \
 	$< > $@ \
 	$(EOL)
