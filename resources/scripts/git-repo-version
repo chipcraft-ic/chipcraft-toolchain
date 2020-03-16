@@ -1,0 +1,13 @@
+#! /usr/bin/env sh
+
+readonly GIT_VERSION="$( \
+  git log -n 1 --format=%H 2>/dev/null
+)"
+
+if test "x${GIT_VERSION}" != "x"
+then
+  echo -n "${GIT_VERSION}"
+else
+  echo -n "unknown"
+fi
+
