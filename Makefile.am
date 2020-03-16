@@ -46,8 +46,14 @@ $(LOCALROOT)/toolchain/mips/linux/.config: $(abs_top_srcdir)/resources/configs/m
 	$(SED) \
 	  " \
 	    s|@MAKE_JOBS@|$(shell nproc)|; \
-	    s|@LIBC_SO_PATH@|$(shell find /usr/ -path "*/libc.so" 2>/dev/null | head -1)|; \
-	    s|@LIBM_A_PATH@|$(shell find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" 2>/dev/null | head -1)|; \
+	    s|@LIBC_SO_PATH@|$(shell \
+	      find /usr/ -path "*/libc.so" -printf "%h" -quit \
+		2>/dev/null \
+	    )|; \
+	    s|@LIBM_A_PATH@|$(shell \
+	      find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit \
+		2>/dev/null \
+	    )|; \
 	    s|@BUILD_TRIPLET@|$(LINUX_TRIPLET)|; \
 	    s|@HOST_TRIPLET@|$(LINUX_TRIPLET)|; \
 	    s|@BINUTILS_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
@@ -69,8 +75,14 @@ $(LOCALROOT)/toolchain/mips/windows/.config: $(abs_top_srcdir)/resources/configs
 	$(SED) \
 	  " \
 	    s|@MAKE_JOBS@|$(shell nproc)|; \
-	    s|@LIBC_SO_PATH@|$(shell find /usr/ -path "*/libc.so" 2>/dev/null | head -1)|; \
-	    s|@LIBM_A_PATH@|$(shell find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" 2>/dev/null | head -1)|; \
+	    s|@LIBC_SO_PATH@|$(shell \
+	      find /usr/ -path "*/libc.so" -printf "%h" -quit \
+		2>/dev/null \
+	    )|; \
+	    s|@LIBM_A_PATH@|$(shell \
+	      find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit \
+		2>/dev/null \
+	    )|; \
 	    s|@BUILD_TRIPLET@|$(LINUX_TRIPLET)|; \
 	    s|@HOST_TRIPLET@|$(WINDOWS_TRIPLET)|; \
 	    s|@BINUTILS_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
