@@ -51,6 +51,7 @@ function clean () {
     Makefile.in \
     Makefile \
     missing \
+    outputroot \
     tools \
   "
   rm -rf ${FILES}
