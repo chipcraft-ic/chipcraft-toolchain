@@ -139,40 +139,40 @@ dnl call: AX_CHIPCRAFT_CHECK_DEPENDENCY([</path/to/check/],
 dnl         [<git repo to clone>]
 dnl       )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-binutils-gdb],
-  [/home/mjemieli/NG/chipcraft/chipcraft-mips-binutils-gdb/],
+  [chipcraft-git:REPOSITORIES/chipcraft-mips-binutils-gdb/],
   [MIPS_BINUTILS_GDB_SRCDIR]dnl
 )
 AC_SUBST(MIPS_BINUTILS_GDB_SRCDIR)
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-gcc],
-  [/home/mjemieli/NG/chipcraft/chipcraft-mips-gcc/],
+  [chipcraft-git:REPOSITORIES/chipcraft-mips-gcc/],
   [MIPS_GCC_SRCDIR]dnl
 )
 AC_SUBST(MIPS_GCC_SRCDIR)
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-newlib],
-  [/home/mjemieli/NG/chipcraft/chipcraft-mips-newlib/],
+  [chipcraft-git:REPOSITORIES/chipcraft-mips-newlib/],
   [MIPS_NEWLIB_SRCDIR]dnl
 )
 AC_SUBST(MIPS_NEWLIB_SRCDIR)
 dnl TODO: future RISC-V extensions
 dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-binutils-gdb],
-dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-binutils-gdb/],
+dnl   [chipcraft-git:REPOSITORIES/chipcraft-riscv-binutils-gdb/],
 dnl   [RISCV_BINUTILS_GDB_SRCDIR]dnl
 dnl )
 dnl AC_SUBST(RISCV_BINUTILS_GDB_SRCDIR)
 dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-gcc],
-dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-gcc/],
+dnl   [chipcraft-git:REPOSITORIES/chipcraft-riscv-gcc/],
 dnl   [RISCV_GCC_SRCDIR]dnl
 dnl )
 dnl AC_SUBST(RISCV_GCC_SRCDIR)
 dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-newlib],
-dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-newlib/],
+dnl   [chipcraft-git:REPOSITORIES/chipcraft-riscv-newlib/],
 dnl   [RISCV_NEWLIB_SRCDIR]dnl
 dnl )
 dnl AC_SUBST(RISCV_NEWLIB_SRCDIR)
 
 dnl check whether our patched crosstool-ng is present
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/tools/chipcraft-crosstool-ng],
-  [/home/mjemieli/NG/chipcraft/chipcraft-crosstool-ng/],
+  [chipcraft-git:REPOSITORIES/chipcraft-crosstool-ng/],
   [CT_NG_SRCDIR]dnl
 )
 AC_SUBST(CT_NG_SRCDIR)

@@ -79,3 +79,17 @@ Build flow:
                                  | +------------------------+ |
                                  +----------------------------+
 
+
+Cloned repositiories use ssh config alias 'chipcraft-git'. Users should set
+this alias in their .ssh/config file.
+Currently the it repositories are held locally on krzem. For cloning to work,
+the following has to be done:
+1. create a link to /home/mjemieli/REPOSITORIES in your home directory
+2. add entry to .ssh/config:
+
+Host chipcraft-git
+  User <your username>
+  HostName 31.0.204.239
+
+When we set up proper git repository, available to many developers, this README will be updated with correct address.
+
