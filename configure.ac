@@ -100,6 +100,33 @@ AC_PATH_PROGS_FEATURE_CHECK([YACC_PROG],
   [${PATH}]dnl
 )
 
+dnl lex-like program is required for ct-ng
+dnl since it's not usually installed, check for it
+dnl we do not want to fail during ct-ng build stage
+AC_PROG_LEX
+dnl check if actually exists, since default is 'yacc' even if not found
+AC_PATH_PROGS_FEATURE_CHECK([LEX_PROG],
+  [${LEX}],
+  [
+    AS_IF([${ac_path_LEX_PROG} -V &> /dev/null],
+      [
+        ac_cv_path_LEX_PROG="${ac_path_LEX_PROG}"
+        ac_path_YACC_PROG_found=:
+      ]dnl
+    )
+  ],
+  [
+    AC_MSG_ERROR([lex-like lexer not found. it can be installed from package manager: sudo apt-get install flex on debian or ubuntu or sudo yum install flex on redhat or centos. flex sources can be found at https://github.com/westes/flex])
+  ],
+  [${PATH}]dnl
+)
+dnl we cannot allow LEX equal to ':'
+AS_IF([test "x${LEX}" = "x:"],
+  [
+    AC_MSG_ERROR([lex-like lexer not found. it can be installed from package manager: sudo apt-get install flex on debian or ubuntu or sudo yum install flex on redhat or centos. flex sources can be found at https://github.com/westes/flex])
+  ]
+)
+
 dnl a curses library is required by ct-ng
 dnl since it's not usually installed, check for it
 dnl we do not want to fail during ct-ng build stage
