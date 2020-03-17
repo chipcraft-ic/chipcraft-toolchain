@@ -146,7 +146,7 @@ AS_IF([test "x${enable_windows_toolchain}" = "xyes"],
           ]dnl
         )
       ],
-      [AC_MSG_ERROR([cannot find gcc executable for windows in provided path])],
+      [AC_MSG_ERROR([cannot find gcc executable for windows in provided path. make sure mingw-w64 toolchain for i686 is installed])],
       [${PATH}]dnl
     )
   ]
