@@ -63,17 +63,17 @@ AC_PATH_PROGS_FEATURE_CHECK([GIT], dnl
 dnl check that libtool exists
 dnl libtool is needed by ct-ng
 dnl this macro used only for custom error messages
-AC_PATH_PROGS_FEATURE_CHECK([LIBTOOLIZE], dnl
-  [libtoolize],
+AC_PATH_PROGS_FEATURE_CHECK([LIBTOOL], dnl
+  [libtool],
   [
-    AS_IF([libtoolize --version &> /dev/null],
+    AS_IF([libtool --features &> /dev/null],
       [
-        ac_cv_path_LIBTOOLIZE="${ac_path_LIBTOOLIZE}"
-        ac_path_LIBTOOLIZE_found=:
+        ac_cv_path_LIBTOOL="${ac_path_LIBTOOL}"
+        ac_path_LIBTOOL_found=:
       ]
     )
   ],
-  [AC_MSG_ERROR([libtool not found. libtool can be installed from package manager: sudo apt-get install libtool on debian or ubuntu or sudo yum install libtool on redhat or centos. libtool sources can be found at https://gnu.org/software/libtool])
+  [AC_MSG_ERROR([libtool not found. libtool can be installed from package manager: sudo apt-get install libtool libtool-bin on debian or ubuntu or sudo yum install libtool on redhat or centos. libtool sources can be found at https://gnu.org/software/libtool])
   ],
   [${PATH}]dnl
 )
