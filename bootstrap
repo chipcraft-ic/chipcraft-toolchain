@@ -25,6 +25,20 @@ requirements () {
 
   if test "x${RESULT}" = "x1"
   then
+    cat << EOF
+some requirements are missing
+consider installing them from your package manager
+or compile them from source and add to PATH
+
+packages on debian or ubuntu can be installed with:
+sudo apt-get install autoconf automake
+
+autoconf sources can be obtained from:
+https://gnu.org/software/autoconf
+automake sources can be obtained from:
+https://gnu.org/software/automake
+
+EOF
     exit 1
   fi
 }
