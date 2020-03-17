@@ -6,12 +6,19 @@ Toolchain consists of:
 - debugger
 - make
 
+Toolchain components will be cloned from company repositories (by themselves
+forks of open source projects). Note that component repositories all have branch
+named 'chipcraft-master', which contains any necessary patches.
+
 Supported platorms:
 - Linux
 - Windows
 
 The main work is done by crosstool-ng (https://crosstool-ng.github.io/).
-Some patches were applied to ensure the tools works with our custom repos.
+The tool is cloned from company repository (by itself fork of open source
+project). Some patches were applied to ensure the tools works with our custom
+repos. Note that those patches are held in branch named 'chipcraft-master'.
+
 Build system uses autotools, steps to build:
 ./bootstrap
 ./configure
@@ -91,5 +98,6 @@ Host chipcraft-git
   User <your username>
   HostName 31.0.204.239
 
-When we set up proper git repository, available to many developers, this README will be updated with correct address.
+When we set up proper git repository, available to many developers, this README
+will be updated with correct address.
 
