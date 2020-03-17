@@ -1,14 +1,15 @@
 #! /usr/bin/env sh
 
+readonly GIT_EXE="${1}"
 readonly TEMPORARY="$(mktemp -d)"
 
-git init "${TEMPORARY}" || exit 1
-git -C "${TEMPORARY}" config --local user.name "Test" || exit 1
-git -C "${TEMPORARY}" config --local user.email "Test@test.com" || exit 1
+${GIT_EXE} init "${TEMPORARY}" || exit 1
+${GIT_EXE} -C "${TEMPORARY}" config --local user.name "Test" || exit 1
+${GIT_EXE} -C "${TEMPORARY}" config --local user.email "Test@test.com" || exit 1
 echo "test" > "${TEMPORARY}/test" || exit 1
-git -C "${TEMPORARY}" add . || exit 1
-git -C "${TEMPORARY}" commit -m "test" || exit 1
-git ls-remote --exit-code "${TEMPORARY}" || exit 1
+${GIT_EXE} -C "${TEMPORARY}" add . || exit 1
+${GIT_EXE} -C "${TEMPORARY}" commit -m "test" || exit 1
+${GIT_EXE} ls-remote --exit-code "${TEMPORARY}" || exit 1
 
 rm -rf "${TEMPORARY}"
 

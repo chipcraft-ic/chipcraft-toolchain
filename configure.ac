@@ -46,10 +46,10 @@ AX_PROG_SSH dnl ssh is used in git urls
 
 dnl check that git supports 'git ls-remote --exit-code'
 dnl this macro used only for custom error messages
-AC_PATH_PROGS_FEATURE_CHECK([GIT], dnl
+AC_PATH_PROGS_FEATURE_CHECK([GIT],
   [git],
   [
-    AS_IF([sh ${ABS_TOP_SRCDIR}/resources/scripts/git-check &> /dev/null],
+    AS_IF([sh ${ABS_TOP_SRCDIR}/resources/scripts/git-check "${ac_path_GIT}" &> /dev/null],
       [
         ac_cv_path_GIT="${ac_path_GIT}"
         ac_path_GIT_found=:
@@ -63,10 +63,10 @@ AC_PATH_PROGS_FEATURE_CHECK([GIT], dnl
 dnl check that libtool exists
 dnl libtool is needed by ct-ng
 dnl this macro used only for custom error messages
-AC_PATH_PROGS_FEATURE_CHECK([LIBTOOL], dnl
+AC_PATH_PROGS_FEATURE_CHECK([LIBTOOL],
   [libtool],
   [
-    AS_IF([libtool --features &> /dev/null],
+    AS_IF([${ac_path_LIBTOOL} --features &> /dev/null],
       [
         ac_cv_path_LIBTOOL="${ac_path_LIBTOOL}"
         ac_path_LIBTOOL_found=:
@@ -75,6 +75,27 @@ AC_PATH_PROGS_FEATURE_CHECK([LIBTOOL], dnl
   ],
   [
     AC_MSG_ERROR([libtool not found. libtool can be installed from package manager: sudo apt-get install libtool libtool-bin on debian or ubuntu or sudo yum install libtool on redhat or centos. libtool sources can be found at https://gnu.org/software/libtool])
+  ],
+  [${PATH}]dnl
+)
+
+dnl yacc-like program is required for ct-ng
+dnl since it's not usually installed, check for it
+dnl we do not want to fail during ct-ng build stage
+AC_PROG_YACC
+dnl check if actually exists, since default is 'yacc' even if not found
+AC_PATH_PROGS_FEATURE_CHECK([YACC_PROG],
+  [${YACC}],
+  [
+    AS_IF([${ac_path_YACC_PROG} -V &> /dev/null],
+      [
+        ac_cv_path_YACC_PROG="${ac_path_YACC_PROG}"
+        ac_path_YACC_PROG_found=:
+      ]dnl
+    )
+  ],
+  [
+    AC_MSG_ERROR([yacc-like lexer not found. it can be installed from package manager: sudo apt-get install bison on debian or ubuntu or sudo yum install bison on redhat or centos. bison sources can be found at https://gnu.org/software/bison])
   ],
   [${PATH}]dnl
 )
