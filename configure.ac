@@ -6,8 +6,8 @@ AC_PREREQ(2.58) dnl at least autoconf v2.58 is required
 dnl initialize the autoconf system
 dnl project version is either git commit hash or "unknown"
 AC_INIT([chipcraft-toolchain],
-  m4_esyscmd_s([git log -n 1 --format=%H 2>/dev/null \
-    | awk -v version="unknown" '{print} END { if (NR==0) {print version} }']),
+  m4_normalize(m4_esyscmd([git log -n 1 --format=%H 2>/dev/null \
+    | awk -v version="unknown" '{print} END { if (NR==0) {print version} }'])),
   [office@chipcraft-ic.com],
   [chipcraft-toolchain-dist],
   [chipcraft-ic.com]dnl
