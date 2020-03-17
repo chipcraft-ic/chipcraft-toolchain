@@ -70,27 +70,42 @@ AC_PATH_PROGS_FEATURE_CHECK([LIBTOOL], dnl
       [
         ac_cv_path_LIBTOOL="${ac_path_LIBTOOL}"
         ac_path_LIBTOOL_found=:
-      ]
+      ]dnl
     )
   ],
-  [AC_MSG_ERROR([libtool not found. libtool can be installed from package manager: sudo apt-get install libtool libtool-bin on debian or ubuntu or sudo yum install libtool on redhat or centos. libtool sources can be found at https://gnu.org/software/libtool])
+  [
+    AC_MSG_ERROR([libtool not found. libtool can be installed from package manager: sudo apt-get install libtool libtool-bin on debian or ubuntu or sudo yum install libtool on redhat or centos. libtool sources can be found at https://gnu.org/software/libtool])
   ],
   [${PATH}]dnl
+)
+
+dnl a curses library is required by ct-ng
+dnl since it's not usually installed, check for it
+dnl we do not want to fail during ct-ng build stage
+AX_WITH_CURSES
+AS_IF([test "x$ax_cv_curses" != "xyes"],
+  [
+    AC_MSG_ERROR([tool used during build requires a curses library])
+  ]dnl
 )
 
 dnl configure what should be built
 
 AC_ARG_ENABLE([linux-toolchain],
-  [AS_HELP_STRING([--disable-linux-toolchain],
-    [do not build static toolchain for linux (current host)]dnl
-  )],
+  [
+    AS_HELP_STRING([--disable-linux-toolchain],
+      [do not build static toolchain for linux (current host)]dnl
+    )
+  ],
   [],
   [AS_VAR_SET(enable_linux_toolchain, yes)]
 )
 AC_ARG_ENABLE([windows-toolchain],
-  [AS_HELP_STRING([--disable-windows-toolchain],
-    [do not build static toolchain for windows x86 32-bit]dnl
-  )],
+  [
+    AS_HELP_STRING([--disable-windows-toolchain],
+      [do not build static toolchain for windows x86 32-bit]dnl
+    )
+  ],
   [],
   [AS_VAR_SET(enable_windows_toolchain, yes)]dnl
 )
