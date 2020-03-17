@@ -58,57 +58,6 @@ AC_PATH_PROGS_FEATURE_CHECK([GIT], dnl
   [${PATH}]dnl
 )
 
-dnl check whether dependencies are present in given directories
-dnl if not, initialize them from given urls
-dnl TODO: change locations from /home/... to github
-dnl call: AX_CHIPCRAFT_CHECK_DEPENDENCY([</path/to/check/],
-dnl         [<git repo to clone>]
-dnl       )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-binutils-gdb],
-  [/home/mjemieli/NG/chipcraft/chipcraft-mips-binutils-gdb/],
-  [MIPS_BINUTILS_GDB_SRCDIR]dnl
-)
-AC_SUBST(MIPS_BINUTILS_GDB_SRCDIR)
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-gcc],
-  [/home/mjemieli/NG/chipcraft/chipcraft-mips-gcc/],
-  [MIPS_GCC_SRCDIR]dnl
-)
-AC_SUBST(MIPS_GCC_SRCDIR)
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-newlib],
-  [/home/mjemieli/NG/chipcraft/chipcraft-mips-newlib/],
-  [MIPS_NEWLIB_SRCDIR]dnl
-)
-AC_SUBST(MIPS_NEWLIB_SRCDIR)
-dnl TODO: future RISC-V extensions
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-binutils-gdb],
-dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-binutils-gdb/],
-dnl   [RISCV_BINUTILS_GDB_SRCDIR]dnl
-dnl )
-dnl AC_SUBST(RISCV_BINUTILS_GDB_SRCDIR)
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-gcc],
-dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-gcc/],
-dnl   [RISCV_GCC_SRCDIR]dnl
-dnl )
-dnl AC_SUBST(RISCV_GCC_SRCDIR)
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-newlib],
-dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-newlib/],
-dnl   [RISCV_NEWLIB_SRCDIR]dnl
-dnl )
-dnl AC_SUBST(RISCV_NEWLIB_SRCDIR)
-
-dnl check whether our patched crosstool-ng is present
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/tools/chipcraft-crosstool-ng],
-  [/home/mjemieli/NG/chipcraft/chipcraft-crosstool-ng/],
-  [CT_NG_SRCDIR]dnl
-)
-AC_SUBST(CT_NG_SRCDIR)
-dnl given crosstool-ng may have already been built
-dnl in that case we will only install it to known
-dnl location during make step
-AM_CONDITIONAL([CT_NG_ALREADY_BUILT],
-  [AS_EXECUTABLE_P(${CT_NG_SRCDIR}/ct-ng)]dnl
-)
-
 dnl configure what should be built
 
 AC_ARG_ENABLE([linux-toolchain],
@@ -181,6 +130,57 @@ AS_IF([test "x${enable_windows_toolchain}" = "xyes"],
       [${PATH}]dnl
     )
   ]
+)
+
+dnl check whether dependencies are present in given directories
+dnl if not, initialize them from given urls
+dnl TODO: change locations from /home/... to github
+dnl call: AX_CHIPCRAFT_CHECK_DEPENDENCY([</path/to/check/],
+dnl         [<git repo to clone>]
+dnl       )
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-binutils-gdb],
+  [/home/mjemieli/NG/chipcraft/chipcraft-mips-binutils-gdb/],
+  [MIPS_BINUTILS_GDB_SRCDIR]dnl
+)
+AC_SUBST(MIPS_BINUTILS_GDB_SRCDIR)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-gcc],
+  [/home/mjemieli/NG/chipcraft/chipcraft-mips-gcc/],
+  [MIPS_GCC_SRCDIR]dnl
+)
+AC_SUBST(MIPS_GCC_SRCDIR)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-newlib],
+  [/home/mjemieli/NG/chipcraft/chipcraft-mips-newlib/],
+  [MIPS_NEWLIB_SRCDIR]dnl
+)
+AC_SUBST(MIPS_NEWLIB_SRCDIR)
+dnl TODO: future RISC-V extensions
+dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-binutils-gdb],
+dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-binutils-gdb/],
+dnl   [RISCV_BINUTILS_GDB_SRCDIR]dnl
+dnl )
+dnl AC_SUBST(RISCV_BINUTILS_GDB_SRCDIR)
+dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-gcc],
+dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-gcc/],
+dnl   [RISCV_GCC_SRCDIR]dnl
+dnl )
+dnl AC_SUBST(RISCV_GCC_SRCDIR)
+dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-newlib],
+dnl   [/home/mjemieli/NG/chipcraft/chipcraft-riscv-newlib/],
+dnl   [RISCV_NEWLIB_SRCDIR]dnl
+dnl )
+dnl AC_SUBST(RISCV_NEWLIB_SRCDIR)
+
+dnl check whether our patched crosstool-ng is present
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/tools/chipcraft-crosstool-ng],
+  [/home/mjemieli/NG/chipcraft/chipcraft-crosstool-ng/],
+  [CT_NG_SRCDIR]dnl
+)
+AC_SUBST(CT_NG_SRCDIR)
+dnl given crosstool-ng may have already been built
+dnl in that case we will only install it to known
+dnl location during make step
+AM_CONDITIONAL([CT_NG_ALREADY_BUILT],
+  [AS_EXECUTABLE_P(${CT_NG_SRCDIR}/ct-ng)]dnl
 )
 
 dnl must be called last
