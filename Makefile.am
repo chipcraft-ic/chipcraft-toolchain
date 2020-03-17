@@ -61,6 +61,13 @@ $(LOCALROOT)/bin/ct-ng: $(LOCALROOT)/build/ct-ng/Makefile
 	  $(EOF)
 endif !CT_NG_ALREADY_BUILT
 
+LIBC_SO_PATH = $(shell \
+  find /usr/ -path "*/libc.so" -printf "%h" -quit  2>/dev/null \
+)
+LIBM_A_PATH = $(shell \
+  find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit 2>/dev/null \
+)
+
 if LINUX_TOOLCHAIN
 $(LOCALROOT)/toolchain/mips/linux/.config: $(abs_top_srcdir)/resources/configs/mips.in
 	$(MKDIR_P) $(dir $@)
@@ -68,14 +75,8 @@ $(LOCALROOT)/toolchain/mips/linux/.config: $(abs_top_srcdir)/resources/configs/m
 	  " \
 	    s|@OUTPUTROOT@|$(OUTPUTROOT)|; \
 	    s|@MAKE_JOBS@|$(shell nproc)|; \
-	    s|@LIBC_SO_PATH@|$(shell \
-	      find /usr/ -path "*/libc.so" -printf "%h" -quit \
-		2>/dev/null \
-	    )|; \
-	    s|@LIBM_A_PATH@|$(shell \
-	      find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit \
-		2>/dev/null \
-	    )|; \
+	    s|@EXTRA_LDFLAGS_FOR_BUILD@|-L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)|; \
+	    s|@EXTRA_LDFLAGS_FOR_HOST@|-L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)|; \
 	    s|@BUILD_TRIPLET@|$(LINUX_TRIPLET)|; \
 	    s|@HOST_TRIPLET@|$(LINUX_TRIPLET)|; \
 	    s|@BINUTILS_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
@@ -103,14 +104,8 @@ $(LOCALROOT)/toolchain/mips/windows/.config: $(abs_top_srcdir)/resources/configs
 	  " \
 	    s|@OUTPUTROOT@|$(OUTPUTROOT)|; \
 	    s|@MAKE_JOBS@|$(shell nproc)|; \
-	    s|@LIBC_SO_PATH@|$(shell \
-	      find /usr/ -path "*/libc.so" -printf "%h" -quit \
-		2>/dev/null \
-	    )|; \
-	    s|@LIBM_A_PATH@|$(shell \
-	      find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit \
-		2>/dev/null \
-	    )|; \
+	    s|@EXTRA_LDFLAGS_FOR_BUILD@|-L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)|; \
+	    s|@EXTRA_LDFLAGS_FOR_HOST@||; \
 	    s|@BUILD_TRIPLET@|$(LINUX_TRIPLET)|; \
 	    s|@HOST_TRIPLET@|$(WINDOWS_TRIPLET)|; \
 	    s|@BINUTILS_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
