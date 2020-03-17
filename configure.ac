@@ -49,7 +49,7 @@ dnl this macro used only for custom error messages
 AC_PATH_PROGS_FEATURE_CHECK([GIT], dnl
   [git],
   [
-    AS_IF([sh ${ABS_TOP_SRCDIR}/resources/scripts/git-check],
+    AS_IF([sh ${ABS_TOP_SRCDIR}/resources/scripts/git-check &> /dev/null],
       [
         ac_cv_path_GIT="${ac_path_GIT}"
         ac_path_GIT_found=:
@@ -57,6 +57,24 @@ AC_PATH_PROGS_FEATURE_CHECK([GIT], dnl
     )
   ],
   [AC_MSG_ERROR([no version of git supporting -C or ls-remote --exit-code])],
+  [${PATH}]dnl
+)
+
+dnl check that libtool exists
+dnl libtool is needed by ct-ng
+dnl this macro used only for custom error messages
+AC_PATH_PROGS_FEATURE_CHECK([LIBTOOLIZE], dnl
+  [libtoolize],
+  [
+    AS_IF([libtoolize --version &> /dev/null],
+      [
+        ac_cv_path_LIBTOOLIZE="${ac_path_LIBTOOLIZE}"
+        ac_path_LIBTOOLIZE_found=:
+      ]
+    )
+  ],
+  [AC_MSG_ERROR([libtool not found. libtool can be installed from package manager: sudo apt-get install libtool on debian or ubuntu or sudo yum install libtool on redhat or centos. libtool sources can be found at https://gnu.org/software/libtool])
+  ],
   [${PATH}]dnl
 )
 
