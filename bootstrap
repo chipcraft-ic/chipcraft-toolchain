@@ -4,7 +4,7 @@
 # can't properly include local macros
 # instead of autoreconf -i, execute the commands below:
 
-function check_requirement () {
+check_requirement () {
   local readonly REQUIREMENT="${1}"
   local RESULT=0
 
@@ -17,7 +17,7 @@ function check_requirement () {
   return ${RESULT}
 }
 
-function requirements () {
+requirements () {
   local RESULT=0
   check_requirement aclocal || RESULT=1
   check_requirement automake || RESULT=1
@@ -29,13 +29,13 @@ function requirements () {
   fi
 }
 
-function generate () {
+generate () {
   aclocal -I m4
   automake -a -c
   autoconf -I m4
 }
 
-function clean () {
+clean () {
   local readonly FILES=" \
     aclocal.m4 \
     autom4te.cache \
@@ -57,7 +57,7 @@ function clean () {
   rm -rf ${FILES}
 }
 
-function help () {
+help () {
   cat << EOF
 Usage: bootstrap [-c] [-h]
   Prepare project for configuration.
@@ -67,7 +67,7 @@ Usage: bootstrap [-c] [-h]
 EOF
 }
 
-function main () {
+main () {
   while getopts ch OPT; do
     case "$OPT" in
       c)
