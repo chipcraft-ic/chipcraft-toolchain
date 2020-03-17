@@ -37,10 +37,12 @@ AS_VAR_SET(ABS_TOP_BUILDDIR, `pwd`)
 
 dnl dependency checks
 
+AX_CHECK_GNU_MAKE([], AC_MSG_ERROR([gnu make required to build project]))
 AC_PROG_CC dnl we need a compiler
 AC_PROG_LN_S dnl check for a way to create links
 AC_PROG_MKDIR_P dnl check for a way to create directories
 AC_PROG_SED dnl check for sed
+AX_PROG_SSH dnl ssh is used in git urls
 
 dnl check that git supports 'git ls-remote --exit-code'
 dnl this macro used only for custom error messages
