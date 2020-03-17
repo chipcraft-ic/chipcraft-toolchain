@@ -637,7 +637,7 @@ CT_EXPAT_DEVEL_URL="https://github.com/libexpat/libexpat.git"
 CT_EXPAT_DEVEL_BRANCH="R_2_2_6"
 CT_EXPAT_DEVEL_REVISION=""
 CT_EXPAT_DEVEL_SUBDIR="expat"
-CT_EXPAT_DEVEL_BOOTSTRAP="./buildconf.sh"
+CT_EXPAT_DEVEL_BOOTSTRAP="mkdir -p m4 && ./buildconf.sh"
 # CT_EXPAT_SRC_CUSTOM is not set
 # CT_EXPAT_PATCH_GLOBAL is not set
 # CT_EXPAT_PATCH_BUNDLED is not set
