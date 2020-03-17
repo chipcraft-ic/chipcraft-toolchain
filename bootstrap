@@ -44,15 +44,17 @@ EOF
 }
 
 generate () {
-  aclocal -I m4
-  automake -a -c
-  autoconf -I m4
-}
+  aclocal -I m4 2>&1
+  automake -a -c 2>&1
+  autoconf -I m4 2>&1
+} > bootstrap.log
+# the line above is a function output redirection, POSIX approved
 
 clean () {
   local readonly FILES=" \
     aclocal.m4 \
     autom4te.cache \
+    bootstrap.log \
     compile \
     components \
     config.guess \
