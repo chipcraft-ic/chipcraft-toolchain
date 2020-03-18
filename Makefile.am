@@ -30,7 +30,7 @@ if CT_NG_ALREADY_BUILT
 $(LOCALROOT)/bin/ct-ng: $(CT_NG_SRCDIR)/Makefile $(CT_NG_SRCDIR)/ct-ng
 	$(MKDIR_P) $(LOCALROOT)
 	$(MAKE) -C '$(CT_NG_SRCDIR)' \
-	  prefix=$(abs_top_builddir)/$(LOCALROOT) \
+	  prefix=$(LOCALROOT) \
 	  install \
 	  $(EOF)
 else !CT_NG_ALREADY_BUILT
@@ -47,7 +47,7 @@ $(LOCALROOT)/build/ct-ng/Makefile: $(CT_NG_SRCDIR)/configure
 	$(MKDIR_P) $(dir $@)
 	$(CD) '$(dir $@)' \
 	&& $(CT_NG_SRCDIR)/configure \
-	  --prefix $(abs_top_builddir)/$(LOCALROOT) \
+	  --prefix $(LOCALROOT) \
 	$(EOL)
 
 # when installing we force prefix because
@@ -56,7 +56,7 @@ $(LOCALROOT)/bin/ct-ng: $(LOCALROOT)/build/ct-ng/Makefile
 	$(IS_DIR) '$(LOCALROOT)/build/ct-ng'
 	$(MAKE) -C '$(LOCALROOT)/build/ct-ng'
 	$(MAKE) -C '$(LOCALROOT)/build/ct-ng' \
-	  prefix=$(abs_top_builddir)/$(LOCALROOT) \
+	  prefix=$(LOCALROOT) \
 	  install \
 	  $(EOF)
 endif !CT_NG_ALREADY_BUILT
