@@ -43,7 +43,12 @@ AC_DEFUN([AX_CHIPCRAFT_CHECK_DEPENDENCY],
     AC_CHECK_FILE([${ax_chipcraft_dependency_path}/configure.ac],
       [],
       [
-        git clone $2 ${ax_chipcraft_dependency_path}
+        AS_VAR_SET_IF(GIT,
+          [],
+          [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
+        )
+        ${GIT} clone $2 ${ax_chipcraft_dependency_path}
+        ${GIT} -C ${ax_chipcraft_dependency_path} checkout chipcraft-master
         AS_UNSET(AS_TR_SH([ac_cv_file_${ax_chipcraft_dependency_path}/configure.ac]))
         AC_CHECK_FILE([${ax_chipcraft_dependency_path}/configure.ac],
           [],

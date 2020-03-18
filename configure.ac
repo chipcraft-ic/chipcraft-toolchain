@@ -51,25 +51,27 @@ AC_PATH_PROGS_FEATURE_CHECK([GIT],
   [
     AS_IF([sh ${ABS_TOP_SRCDIR}/resources/scripts/git-check "${ac_path_GIT}" &> /dev/null],
       [
-        ac_cv_path_GIT="${ac_path_GIT}"
-        ac_path_GIT_found=:
+        AS_VAR_SET(GIT, "${ac_path_GIT}")
+        AS_VAR_SET(ac_cv_path_GIT, "${ac_path_GIT}")
+        AS_VAR_SET(ac_path_GIT_found, :)
       ]
     )
   ],
   [AC_MSG_ERROR([no version of git supporting -C or ls-remote --exit-code])],
   [${PATH}]dnl
 )
+AC_SUBST(GIT)
 
 dnl check that libtool exists
 dnl libtool is needed by ct-ng
 dnl this macro used only for custom error messages
-AC_PATH_PROGS_FEATURE_CHECK([LIBTOOL],
+AC_PATH_PROGS_FEATURE_CHECK([LIBTOOL_PROG],
   [libtool],
   [
-    AS_IF([${ac_path_LIBTOOL} --features &> /dev/null],
+    AS_IF([${ac_path_LIBTOOL_PROG} --features &> /dev/null],
       [
-        ac_cv_path_LIBTOOL="${ac_path_LIBTOOL}"
-        ac_path_LIBTOOL_found=:
+        AS_VAR_SET(ac_cv_path_LIBTOOL_PROG, "${ac_path_LIBTOOL_PROG}")
+        AS_VAR_SET(ac_path_LIBTOOL_PROG_found, :)
       ]dnl
     )
   ],
