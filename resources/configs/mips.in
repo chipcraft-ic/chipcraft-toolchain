@@ -4,18 +4,18 @@
 CT_CONFIGURE_has_wget=y
 # CT_CONFIGURE_has_curl is not set
 CT_CONFIGURE_has_make_3_81_or_newer=y
-CT_CONFIGURE_has_autoconf_2_65_or_newer=y
-CT_CONFIGURE_has_autoreconf_2_65_or_newer=y
-CT_CONFIGURE_has_automake_1_15_or_newer=y
-CT_CONFIGURE_has_gnu_m4_1_4_12_or_newer=y
-CT_CONFIGURE_has_python_3_4_or_newer=y
-CT_CONFIGURE_has_python=y
+# CT_CONFIGURE_has_autoconf_2_65_or_newer is not set
+# CT_CONFIGURE_has_autoreconf_2_65_or_newer is not set
+# CT_CONFIGURE_has_automake_1_15_or_newer is not set
+# CT_CONFIGURE_has_gnu_m4_1_4_12_or_newer is not set
+# CT_CONFIGURE_has_python_3_4_or_newer is not set
+# CT_CONFIGURE_has_python is not set
 # CT_CONFIGURE_has_cvs is not set
 # CT_CONFIGURE_has_svn is not set
 CT_CONFIGURE_has_git=y
-CT_CONFIGURE_has_md5sum=y
-CT_CONFIGURE_has_sha1sum=y
-CT_CONFIGURE_has_sha256sum=y
+# CT_CONFIGURE_has_md5sum is not set
+# CT_CONFIGURE_has_sha1sum is not set
+# CT_CONFIGURE_has_sha256sum is not set
 CT_CONFIGURE_has_sha512sum=y
 CT_CONFIGURE_has_install_with_strip_program=y
 CT_CONFIG_VERSION_CURRENT="3"
@@ -677,8 +677,18 @@ CT_COMP_LIBS_ISL=y
 CT_COMP_LIBS_ISL_PKG_KSYM="ISL"
 CT_ISL_DIR_NAME="isl"
 CT_ISL_PKG_NAME="isl"
-CT_ISL_SRC_RELEASE=y
-# CT_ISL_SRC_DEVEL is not set
+# CT_ISL_SRC_RELEASE is not set
+CT_ISL_SRC_DEVEL=y
+CT_ISL_DEVEL_VCS_git=y
+# CT_ISL_DEVEL_VCS_svn is not set
+# CT_ISL_DEVEL_VCS_hg is not set
+# CT_ISL_DEVEL_VCS_cvs is not set
+CT_ISL_DEVEL_VCS="git"
+CT_ISL_DEVEL_URL="git://repo.or.cz/isl.git"
+CT_ISL_DEVEL_BRANCH="isl-0.22"
+CT_ISL_DEVEL_REVISION=""
+CT_ISL_DEVEL_SUBDIR=""
+CT_ISL_DEVEL_BOOTSTRAP="aclocal -I m4 && autoheader && automake -a -c && autoconf -I m4"
 # CT_ISL_SRC_CUSTOM is not set
 # CT_ISL_PATCH_GLOBAL is not set
 CT_ISL_PATCH_BUNDLED=y
@@ -687,6 +697,7 @@ CT_ISL_PATCH_BUNDLED=y
 # CT_ISL_PATCH_LOCAL_BUNDLED is not set
 # CT_ISL_PATCH_NONE is not set
 CT_ISL_PATCH_ORDER="bundled"
+# CT_ISL_VERY_NEW is not set
 CT_ISL_V_0_22=y
 # CT_ISL_V_0_21 is not set
 # CT_ISL_V_0_20 is not set
@@ -721,8 +732,18 @@ CT_COMP_LIBS_MPC=y
 CT_COMP_LIBS_MPC_PKG_KSYM="MPC"
 CT_MPC_DIR_NAME="mpc"
 CT_MPC_PKG_NAME="mpc"
-CT_MPC_SRC_RELEASE=y
-# CT_MPC_SRC_DEVEL is not set
+# CT_MPC_SRC_RELEASE is not set
+CT_MPC_SRC_DEVEL=y
+CT_MPC_DEVEL_VCS_git=y
+# CT_MPC_DEVEL_VCS_svn is not set
+# CT_MPC_DEVEL_VCS_hg is not set
+# CT_MPC_DEVEL_VCS_cvs is not set
+CT_MPC_DEVEL_VCS="git"
+CT_MPC_DEVEL_URL="https://scm.gforge.inria.fr/anonscm/git/mpc/mpc.git"
+CT_MPC_DEVEL_BRANCH="1.1.0"
+CT_MPC_DEVEL_REVISION=""
+CT_MPC_DEVEL_SUBDIR=""
+CT_MPC_DEVEL_BOOTSTRAP="aclocal -I m4 && autoheader && automake -a -c && autoconf -I m4"
 # CT_MPC_SRC_CUSTOM is not set
 # CT_MPC_PATCH_GLOBAL is not set
 CT_MPC_PATCH_BUNDLED=y
@@ -731,6 +752,7 @@ CT_MPC_PATCH_BUNDLED=y
 # CT_MPC_PATCH_LOCAL_BUNDLED is not set
 # CT_MPC_PATCH_NONE is not set
 CT_MPC_PATCH_ORDER="bundled"
+# CT_MPC_VERY_NEW is not set
 CT_MPC_V_1_1=y
 # CT_MPC_V_1_0 is not set
 # CT_MPC_NO_VERSIONS is not set
