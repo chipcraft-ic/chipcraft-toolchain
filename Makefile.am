@@ -68,8 +68,7 @@ LIBM_A_PATH = $(shell \
   find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit 2>/dev/null \
 )
 
-if LINUX_TOOLCHAIN
-$(LOCALROOT)/toolchain/mips/linux/.config: $(abs_top_srcdir)/resources/configs/mips.in
+$(LOCALROOT)/toolchain/mips/%/.config: $(abs_top_srcdir)/resources/configs/mips-%.in
 	$(MKDIR_P) $(dir $@)
 	$(SED) \
 	  " \
@@ -87,6 +86,7 @@ $(LOCALROOT)/toolchain/mips/linux/.config: $(abs_top_srcdir)/resources/configs/m
 	$< > $@ \
 	$(EOL)
 
+if LINUX_TOOLCHAIN
 $(OUTPUTROOT)/$(LINUX_TRIPLET): $(LOCALROOT)/toolchain/mips/linux/.config $(LOCALROOT)/bin/ct-ng
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(word 2,$^) build \
@@ -98,24 +98,6 @@ LINUX_DEPENDENCY =
 endif !LINUX_TOOLCHAIN
 
 if WINDOWS_TOOLCHAIN
-$(LOCALROOT)/toolchain/mips/windows/.config: $(abs_top_srcdir)/resources/configs/mips.in
-	$(MKDIR_P) $(dir $@)
-	$(SED) \
-	  " \
-	    s|@OUTPUTROOT@|$(OUTPUTROOT)|; \
-	    s|@MAKE_JOBS@|$(shell nproc)|; \
-	    s|@EXTRA_LDFLAGS_FOR_BUILD@|-L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)|; \
-	    s|@EXTRA_LDFLAGS_FOR_HOST@||; \
-	    s|@BUILD_TRIPLET@|$(LINUX_TRIPLET)|; \
-	    s|@HOST_TRIPLET@|$(WINDOWS_TRIPLET)|; \
-	    s|@BINUTILS_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
-	    s|@NEWLIB_URL@|$(MIPS_NEWLIB_SRCDIR)|; \
-	    s|@GCC_URL@|$(MIPS_GCC_SRCDIR)|; \
-	    s|@GDB_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
-	  " \
-	$< > $@ \
-	$(EOL)
-
 $(OUTPUTROOT)/$(WINDOWS_TRIPLET): $(LOCALROOT)/toolchain/mips/windows/.config $(LOCALROOT)/bin/ct-ng
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(word 2,$^) build \
