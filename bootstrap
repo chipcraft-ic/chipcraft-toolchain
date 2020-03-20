@@ -68,6 +68,7 @@ clean () {
     Makefile \
     missing \
     outputroot \
+    tarballs \
     tools \
   "
   rm -rf ${FILES}

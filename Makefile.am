@@ -79,16 +79,22 @@ LIBC_SO_PATH = $(shell \
 LIBM_A_PATH = $(shell \
   find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit 2>/dev/null \
 )
+CT_TARBALLS_STORAGE = $(abs_top_builddir)/tarballs
 CT_NG_EXTRA_LDFLAGS_FOR_BUILD = -L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)
 CT_NG_EXTRA_LDFLAGS_FOR_HOST =
 CT_NG_HOST_TRIPLET =
 
+$(CT_TARBALLS_STORAGE):
+	$(MKDIR_P) $@
+
 $(LOCALROOT)/toolchain/mips/%/.config: \
-  $(abs_top_srcdir)/resources/configs/mips-%.in \
+  $(abs_top_srcdir)/resources/configs/mips-%.in\
+  $(CT_TARBALLS_STORAGE) \
   $(EOL)
 	$(MKDIR_P) $(dir $@)
 	$(SED) \
 	  " \
+	    s|@TARBALLS_STORAGE@|$(CT_TARBALLS_STORAGE)|; \
 	    s|@OUTPUTROOT@|$(OUTPUTROOT)|; \
 	    s|@MAKE_JOBS@|$(shell nproc)|; \
 	    s|@EXTRA_LDFLAGS_FOR_BUILD@|$(CT_NG_EXTRA_LDFLAGS_FOR_BUILD)|; \
