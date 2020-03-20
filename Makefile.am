@@ -67,6 +67,8 @@ LIBC_SO_PATH = $(shell \
 LIBM_A_PATH = $(shell \
   find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit 2>/dev/null \
 )
+EXTRA_LDFLAGS_FOR_BUILD = -L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)
+EXTRA_LDFLAGS_FOR_HOST =
 
 $(LOCALROOT)/toolchain/mips/%/.config: $(abs_top_srcdir)/resources/configs/mips-%.in
 	$(MKDIR_P) $(dir $@)
@@ -74,8 +76,8 @@ $(LOCALROOT)/toolchain/mips/%/.config: $(abs_top_srcdir)/resources/configs/mips-
 	  " \
 	    s|@OUTPUTROOT@|$(OUTPUTROOT)|; \
 	    s|@MAKE_JOBS@|$(shell nproc)|; \
-	    s|@EXTRA_LDFLAGS_FOR_BUILD@|-L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)|; \
-	    s|@EXTRA_LDFLAGS_FOR_HOST@|-L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)|; \
+	    s|@EXTRA_LDFLAGS_FOR_BUILD@|$(EXTRA_LDFLAGS_FOR_BUILD)|; \
+	    s|@EXTRA_LDFLAGS_FOR_HOST@|$(EXTRA_LDFLAGS_FOR_HOST)|; \
 	    s|@BUILD_TRIPLET@|$(LINUX_TRIPLET)|; \
 	    s|@HOST_TRIPLET@|$(LINUX_TRIPLET)|; \
 	    s|@BINUTILS_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
@@ -87,6 +89,8 @@ $(LOCALROOT)/toolchain/mips/%/.config: $(abs_top_srcdir)/resources/configs/mips-
 	$(EOL)
 
 if LINUX_TOOLCHAIN
+$(LOCALROOT)/toolchain/mips/linux/.config: EXTRA_LDFLAGS_FOR_HOST = $(EXTRA_LDFLAGS_FOR_BUILD)
+
 $(OUTPUTROOT)/$(LINUX_TRIPLET): $(LOCALROOT)/toolchain/mips/linux/.config $(LOCALROOT)/bin/ct-ng
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(word 2,$^) build \
