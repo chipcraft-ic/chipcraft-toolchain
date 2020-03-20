@@ -19,7 +19,10 @@ LOCALROOT = $(abs_top_builddir)/localroot
 OUTPUTROOT = $(abs_top_builddir)/outputroot
 
 # handle changes in configure.ac
-$(abs_top_srcdir)/configure: $(abs_top_srcdir)/configure.ac $(abs_top_srcdir)/aclocal.m4
+$(abs_top_srcdir)/configure: \
+  $(abs_top_srcdir)/configure.ac \
+  $(abs_top_srcdir)/aclocal.m4 \
+  $(EOL)
 	$(CD) '$(abs_top_srcdir)' \
 	&& autoconf -I m4 \
 	$(EOL)
@@ -27,23 +30,30 @@ $(abs_top_srcdir)/configure: $(abs_top_srcdir)/configure.ac $(abs_top_srcdir)/ac
 if CT_NG_ALREADY_BUILT
 # when installing we force prefix because
 # we have been given an already configured and built ct-ng sources
-$(LOCALROOT)/bin/ct-ng: $(CT_NG_SRCDIR)/Makefile $(CT_NG_SRCDIR)/ct-ng
+$(LOCALROOT)/bin/ct-ng: \
+  $(CT_NG_SRCDIR)/Makefile \
+  $(CT_NG_SRCDIR)/ct-ng \
+  $(EOL)
 	$(MKDIR_P) $(LOCALROOT)
 	$(MAKE) -C '$(CT_NG_SRCDIR)' \
 	  prefix=$(LOCALROOT) \
 	  install \
-	  $(EOF)
+	  $(EOL)
 else !CT_NG_ALREADY_BUILT
 # this requires $(CT_NG_SRCDIR) to be writable
 # however default path points to builddir
 # which should always be writable
-$(CT_NG_SRCDIR)/configure: $(CT_NG_SRCDIR)/bootstrap
+$(CT_NG_SRCDIR)/configure: \
+  $(CT_NG_SRCDIR)/bootstrap \
+  $(EOL)
 	$(IS_DIR) '$(CT_NG_SRCDIR)'
 	$(CD) '$(CT_NG_SRCDIR)' \
 	&& $(CT_NG_SRCDIR)/bootstrap \
 	$(EOL)
 
-$(LOCALROOT)/build/ct-ng/Makefile: $(CT_NG_SRCDIR)/configure
+$(LOCALROOT)/build/ct-ng/Makefile: \
+  $(CT_NG_SRCDIR)/configure \
+  $(EOL)
 	$(MKDIR_P) $(dir $@)
 	$(CD) '$(dir $@)' \
 	&& $(CT_NG_SRCDIR)/configure \
@@ -52,13 +62,15 @@ $(LOCALROOT)/build/ct-ng/Makefile: $(CT_NG_SRCDIR)/configure
 
 # when installing we force prefix because
 # we may have been given an already configured ct-ng sources
-$(LOCALROOT)/bin/ct-ng: $(LOCALROOT)/build/ct-ng/Makefile
+$(LOCALROOT)/bin/ct-ng: \
+  $(LOCALROOT)/build/ct-ng/Makefile \
+  $(EOL)
 	$(IS_DIR) '$(LOCALROOT)/build/ct-ng'
 	$(MAKE) -C '$(LOCALROOT)/build/ct-ng'
 	$(MAKE) -C '$(LOCALROOT)/build/ct-ng' \
 	  prefix=$(LOCALROOT) \
 	  install \
-	  $(EOF)
+	  $(EOL)
 endif !CT_NG_ALREADY_BUILT
 
 LIBC_SO_PATH = $(shell \
@@ -71,7 +83,9 @@ CT_NG_EXTRA_LDFLAGS_FOR_BUILD = -L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)
 CT_NG_EXTRA_LDFLAGS_FOR_HOST =
 CT_NG_HOST_TRIPLET =
 
-$(LOCALROOT)/toolchain/mips/%/.config: $(abs_top_srcdir)/resources/configs/mips-%.in
+$(LOCALROOT)/toolchain/mips/%/.config: \
+  $(abs_top_srcdir)/resources/configs/mips-%.in \
+  $(EOL)
 	$(MKDIR_P) $(dir $@)
 	$(SED) \
 	  " \
@@ -90,12 +104,16 @@ $(LOCALROOT)/toolchain/mips/%/.config: $(abs_top_srcdir)/resources/configs/mips-
 	$(EOL)
 
 if LINUX_TOOLCHAIN
+# one variable assignment per rule!
 $(LOCALROOT)/toolchain/mips/linux/.config: \
-  CT_NG_EXTRA_LDFLAGS_FOR_HOST = $(CT_NG_EXTRA_LDFLAGS_FOR_BUILD) \
-  CT_NG_HOST_TRIPLET = $(LINUX_TRIPLET) \
-  $(EOF)
+  CT_NG_EXTRA_LDFLAGS_FOR_HOST = $(CT_NG_EXTRA_LDFLAGS_FOR_BUILD)
+$(LOCALROOT)/toolchain/mips/linux/.config: \
+  CT_NG_HOST_TRIPLET = $(LINUX_TRIPLET)
 
-$(OUTPUTROOT)/$(LINUX_TRIPLET): $(LOCALROOT)/toolchain/mips/linux/.config $(LOCALROOT)/bin/ct-ng
+$(OUTPUTROOT)/$(LINUX_TRIPLET): \
+  $(LOCALROOT)/toolchain/mips/linux/.config \
+  $(LOCALROOT)/bin/ct-ng \
+  $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(word 2,$^) build \
 	$(EOL)
@@ -107,10 +125,12 @@ endif !LINUX_TOOLCHAIN
 
 if WINDOWS_TOOLCHAIN
 $(LOCALROOT)/toolchain/mips/windows/.config: \
-  CT_NG_HOST_TRIPLET = $(WINDOWS_TRIPLET) \
-  $(EOF)
+  CT_NG_HOST_TRIPLET = $(WINDOWS_TRIPLET)
 
-$(OUTPUTROOT)/$(WINDOWS_TRIPLET): $(LOCALROOT)/toolchain/mips/windows/.config $(LOCALROOT)/bin/ct-ng
+$(OUTPUTROOT)/$(WINDOWS_TRIPLET): \
+  $(LOCALROOT)/toolchain/mips/windows/.config \
+  $(LOCALROOT)/bin/ct-ng \
+  $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(word 2,$^) build \
 	$(EOL)
