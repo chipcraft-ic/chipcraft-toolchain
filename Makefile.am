@@ -112,8 +112,6 @@ $(LOCALROOT)/toolchain/mips/%/.config: \
 if LINUX_TOOLCHAIN
 # one variable assignment per rule!
 $(LOCALROOT)/toolchain/mips/linux/.config: \
-  CT_NG_EXTRA_LDFLAGS_FOR_HOST = $(CT_NG_EXTRA_LDFLAGS_FOR_BUILD)
-$(LOCALROOT)/toolchain/mips/linux/.config: \
   CT_NG_HOST_TRIPLET = $(LINUX_TRIPLET)
 
 $(OUTPUTROOT)/$(LINUX_TRIPLET): \
