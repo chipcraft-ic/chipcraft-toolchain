@@ -19,10 +19,26 @@ The tool is cloned from company repository (by itself fork of open source
 project). Some patches were applied to ensure the tools works with our custom
 repos. Note that those patches are held in branch named 'chipcraft-master'.
 
+
+
 Build system uses autotools, steps to build:
 ./bootstrap
 ./configure
 make
+
+
+
+Note that you can disable specific platforms at configuration step and build
+only specific platforms at make step:
+./configure --disable-linux-toolchain
+will shut off rules for building toolchain for Linux hosts
+./configure --disable-windows-toolchain
+will do the same for Windows hosts.
+After configuration is done you can invoke make like:
+make linux
+to only build Linux toolchain and
+make windows
+to only build Windwos toolchain.
 
 Build flow:
 
