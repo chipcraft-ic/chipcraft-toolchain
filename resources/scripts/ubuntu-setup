@@ -15,5 +15,6 @@ sudo apt-get install \
   flex \
   git \
   ctags \
+  wget \
   ;
 
