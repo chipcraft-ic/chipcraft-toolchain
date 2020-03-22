@@ -149,7 +149,7 @@ dnl we do not want to fail during ct-ng build stage
 AC_PATH_PROGS_FEATURE_CHECK([GAWK_PROG],
   [gawk],
   [
-    AS_IF([${ac_path_GAWK_PROG} -V &> /dev/null],
+    AS_IF([${ac_path_GAWK_PROG} --version &> /dev/null],
       [
         ac_cv_path_GAWK_PROG="${ac_path_GAWK_PROG}"
         ac_path_GAWK_PROG_found=:
