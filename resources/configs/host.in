@@ -812,14 +812,14 @@ CT_BISON_PATCH_GLOBAL=y
 # CT_BISON_PATCH_LOCAL_BUNDLED is not set
 # CT_BISON_PATCH_NONE is not set
 CT_BISON_PATCH_ORDER="global"
-CT_BISON_V_3_5=y
+# CT_BISON_V_3_5 is not set
 # CT_BISON_V_3_4 is not set
-# CT_BISON_V_3_3 is not set
+CT_BISON_V_3_3=y
 # CT_BISON_V_3_2 is not set
 # CT_BISON_V_3_1 is not set
 # CT_BISON_V_3_0 is not set
 # CT_BISON_NO_VERSIONS is not set
-CT_BISON_VERSION="3.5"
+CT_BISON_VERSION="3.3.2"
 CT_BISON_MIRRORS="$(CT_Mirrors GNU bison)"
 CT_BISON_ARCHIVE_FILENAME="@{pkg_name}-@{version}"
 CT_BISON_ARCHIVE_DIRNAME="@{pkg_name}-@{version}"
