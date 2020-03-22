@@ -13,6 +13,7 @@ sudo apt-get install \
   make \
   bison \
   flex \
+  gawk \
   git \
   ctags \
   wget \
