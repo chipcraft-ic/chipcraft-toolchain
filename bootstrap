@@ -68,8 +68,8 @@ clean () {
     Makefile \
     missing \
     outputroot \
-    tarballs \
     tools \
+    workdir \
   "
   rm -rf ${FILES}
 }
@@ -106,7 +106,7 @@ main () {
   echo "checking requirements"
   requirements
   echo "bootstrapping the project"
-  generate
+  generate || echo "bootstrap failure"
 }
 
 main $@

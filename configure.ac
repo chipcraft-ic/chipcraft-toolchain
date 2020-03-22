@@ -6,8 +6,10 @@ AC_PREREQ(2.58) dnl at least autoconf v2.58 is required
 dnl initialize the autoconf system
 dnl project version is either git commit hash or "unknown"
 AC_INIT([chipcraft-toolchain],
-  m4_normalize(m4_esyscmd([git log -n 1 --format=%H 2>/dev/null \
-    | awk -v version="unknown" '{print} END { if (NR==0) {print version} }'])),
+  m4_normalize(m4_esyscmd([ \
+    git log -n 1 --format=%H 2>/dev/null \
+    | awk -v version="unknown" '{print} END { if (NR==0) {print version} }'dnl
+  ])),
   [office@chipcraft-ic.com],
   [chipcraft-toolchain-dist],
   [chipcraft-ic.com]dnl
@@ -35,9 +37,45 @@ AS_VAR_SET(ABS_TOP_SRCDIR, `cd ${srcdir} && pwd`)
 dnl assume pwd is the build directory
 AS_VAR_SET(ABS_TOP_BUILDDIR, `pwd`)
 
+dnl get information about our buildsystem
+AC_CANONICAL_BUILD
+AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET,
+  "${build_cpu}-chipcraft-linux-gnu"dnl
+)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)
+dnl is cpu 64-bit or 32-bit?
+AS_CASE(${build_cpu},
+  [x86_64],
+  [AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_BITNESS, '64')],
+  [AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_BITNESS, '32')]
+)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_BITNESS)
+AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_CPUS,
+  m4_normalize(m4_esyscmd([nproc]))
+)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_CPUS)
+dnl TODO do not use sed directly
+AS_VAR_SET(VERSION,
+  m4_normalize(m4_esyscmd([uname -r | sed 's|-.*||']))
+)
+AX_SPLIT_VERSION
+dnl when we build name of kernel headers package
+dnl if patch value is equal zero
+dnl it and the final dot are ommitted
+dnl TODO do not use sed directly
+AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_KERNEL,
+  m4_normalize(m4_esyscmd([uname -r | sed 's|-.*||' | sed 's|\.0$||']))
+)
+AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_KERNEL_MAJOR, "${AX_MAJOR_VERSION}")
+AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_KERNEL_MINOR, "${AX_MINOR_VERSION}")
+AS_UNSET(VERSION)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_KERNEL)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_KERNEL_MAJOR)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_KERNEL_MINOR)
+
 dnl dependency checks
 
-AX_CHECK_GNU_MAKE([], AC_MSG_ERROR([gnu make required to build project]))
+AX_CHECK_GNU_MAKE([], AC_MSG_ERROR([GNU Make is required to build project.]))
 AC_PROG_CC dnl we need a compiler
 AC_PROG_LN_S dnl check for a way to create links
 AC_PROG_MKDIR_P dnl check for a way to create directories
@@ -49,15 +87,18 @@ dnl this macro used only for custom error messages
 AC_PATH_PROGS_FEATURE_CHECK([GIT],
   [git],
   [
-    AS_IF([sh ${ABS_TOP_SRCDIR}/resources/scripts/git-check "${ac_path_GIT}" &> /dev/null],
+    AS_IF([ \
+        sh ${ABS_TOP_SRCDIR}/resources/scripts/git-check "${ac_path_GIT}" \
+        &> /dev/null dnl
+      ],
       [
         AS_VAR_SET(GIT, "${ac_path_GIT}")
         AS_VAR_SET(ac_cv_path_GIT, "${ac_path_GIT}")
         AS_VAR_SET(ac_path_GIT_found, :)
-      ]
+      ]dnl
     )
   ],
-  [AC_MSG_ERROR([no version of git supporting -C or ls-remote --exit-code])],
+  [AC_MSG_ERROR([No version of git supporting -C or ls-remote --exit-code.])],
   [${PATH}]dnl
 )
 AC_SUBST(GIT)
@@ -76,7 +117,7 @@ AC_PATH_PROGS_FEATURE_CHECK([LIBTOOL_PROG],
     )
   ],
   [
-    AC_MSG_ERROR([libtool not found. libtool can be installed from package manager: sudo apt-get install libtool libtool-bin on debian or ubuntu or sudo yum install libtool on redhat or centos. libtool sources can be found at https://gnu.org/software/libtool])
+    AC_MSG_ERROR([Libtool not found. Libtool can be installed from package manager: sudo apt-get install libtool libtool-bin on debian or ubuntu or sudo yum install libtool on redhat or centos. Libtool sources can be found at https://gnu.org/software/libtool.])
   ],
   [${PATH}]dnl
 )
@@ -97,7 +138,26 @@ AC_PATH_PROGS_FEATURE_CHECK([YACC_PROG],
     )
   ],
   [
-    AC_MSG_ERROR([yacc-like lexer not found. it can be installed from package manager: sudo apt-get install bison on debian or ubuntu or sudo yum install bison on redhat or centos. bison sources can be found at https://gnu.org/software/bison])
+    AC_MSG_ERROR([Yacc-like lexer not found. It can be installed from package manager: sudo apt-get install bison on debian or ubuntu or sudo yum install bison on redhat or centos. Bison sources can be found at https://gnu.org/software/bison.])
+  ],
+  [${PATH}]dnl
+)
+
+dnl gawk is required for ct-ng
+dnl since it's not usually installed, check for it
+dnl we do not want to fail during ct-ng build stage
+AC_PATH_PROGS_FEATURE_CHECK([GAWK_PROG],
+  [gawk],
+  [
+    AS_IF([${ac_path_GAWK_PROG} -V &> /dev/null],
+      [
+        ac_cv_path_GAWK_PROG="${ac_path_GAWK_PROG}"
+        ac_path_GAWK_PROG_found=:
+      ]dnl
+    )
+  ],
+  [
+    AC_MSG_ERROR([Gawk not found. It can be installed from package manager: sudo apt-get install gawk on debian or ubuntu or sudo yum install gawk on redhat or centos. Gawk sources can be found at https://gnu.org/software/gawk.])
   ],
   [${PATH}]dnl
 )
@@ -118,14 +178,14 @@ AC_PATH_PROGS_FEATURE_CHECK([LEX_PROG],
     )
   ],
   [
-    AC_MSG_ERROR([lex-like lexer not found. it can be installed from package manager: sudo apt-get install flex on debian or ubuntu or sudo yum install flex on redhat or centos. flex sources can be found at https://github.com/westes/flex])
+    AC_MSG_ERROR([Lex-like lexer not found. It can be installed from package manager: sudo apt-get install flex on debian or ubuntu or sudo yum install flex on redhat or centos. Flex sources can be found at https://github.com/westes/flex.])
   ],
   [${PATH}]dnl
 )
 dnl we cannot allow LEX equal to ':'
 AS_IF([test "x${LEX}" = "x:"],
   [
-    AC_MSG_ERROR([lex-like lexer not found. it can be installed from package manager: sudo apt-get install flex on debian or ubuntu or sudo yum install flex on redhat or centos. flex sources can be found at https://github.com/westes/flex])
+    AC_MSG_ERROR([Lex-like lexer not found. It can be installed from package manager: sudo apt-get install flex on debian or ubuntu or sudo yum install flex on redhat or centos. Flex sources can be found at https://github.com/westes/flex.])
   ]
 )
 
@@ -135,7 +195,7 @@ dnl we do not want to fail during ct-ng build stage
 AX_WITH_CURSES
 AS_IF([test "x$ax_cv_curses" != "xyes"],
   [
-    AC_MSG_ERROR([tool used during build requires a curses library])
+    AC_MSG_ERROR([Resultant toolchain requires a curses library.])
   ]dnl
 )
 
@@ -144,7 +204,7 @@ dnl configure what should be built
 AC_ARG_ENABLE([linux-toolchain],
   [
     AS_HELP_STRING([--disable-linux-toolchain],
-      [do not build static toolchain for linux (current host)]dnl
+      [do not build static toolchain for linux]dnl
     )
   ],
   [],
@@ -160,21 +220,21 @@ AC_ARG_ENABLE([windows-toolchain],
   [AS_VAR_SET(enable_windows_toolchain, yes)]dnl
 )
 dnl pass the choices to Makefile
-AM_CONDITIONAL([LINUX_TOOLCHAIN],
+AM_CONDITIONAL([CHIPCRAFT_TOOLCHAIN_LINUX],
   [test "x${enable_linux_toolchain}" = "xyes"]dnl
 )
-AM_CONDITIONAL([WINDOWS_TOOLCHAIN],
+AM_CONDITIONAL([CHIPCRAFT_TOOLCHAIN_WINDOWS],
   [test "x${enable_windows_toolchain}" = "xyes"]dnl
 )
 
 
 dnl for linux taken from found compiler
-AX_CHIPCRAFT_ARG_DEFAULT_VAR([LINUX_TRIPLET],
+AX_CHIPCRAFT_ARG_DEFAULT_VAR([CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET],
   [Target triplet used by crosstool-ng for linux build],
   [`${CC} -dumpmachine`]dnl
 )
 dnl and for windows
-AX_CHIPCRAFT_ARG_DEFAULT_VAR([WINDOWS_TRIPLET],
+AX_CHIPCRAFT_ARG_DEFAULT_VAR([CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET],
   [Target triplet used by crosstool-ng for windows build],
   ["i686-w64-mingw32"]dnl default for mingw-based 32-bit build
 )
@@ -186,7 +246,7 @@ dnl this macro used only for custom error messages
 dnl check if found program is executable
 dnl (just a basic sanity check, since ct-ng also checks it)
 AC_PATH_PROGS_FEATURE_CHECK([LINUX_GCC],
-  [${LINUX_TRIPLET}-gcc],
+  [${CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET}-gcc],
   [
     AS_IF([AS_EXECUTABLE_P(${ac_path_LINUX_GCC})],
       [
@@ -195,14 +255,14 @@ AC_PATH_PROGS_FEATURE_CHECK([LINUX_GCC],
       ]dnl
     )
   ],
-  [AC_MSG_ERROR([cannot find gcc executable for linux in provided path])],
+  [AC_MSG_ERROR([Cannot find compiler for linux in provided path.])],
   [${PATH}]dnl
 )
 dnl gcc for windows build is tested only if windows build is enabled
 AS_IF([test "x${enable_windows_toolchain}" = "xyes"],
   [
     AC_PATH_PROGS_FEATURE_CHECK([WINDOWS_GCC],
-      [${WINDOWS_TRIPLET}-gcc],
+      [${CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET}-gcc],
       [
         AS_IF([AS_EXECUTABLE_P(${ac_path_WINDOWS_GCC})],
           [
@@ -211,7 +271,7 @@ AS_IF([test "x${enable_windows_toolchain}" = "xyes"],
           ]dnl
         )
       ],
-      [AC_MSG_ERROR([cannot find gcc executable for windows in provided path. make sure mingw-w64 toolchain for i686 is installed])],
+      [AC_MSG_ERROR([Cannot find compiler for windows in provided path. Ensure mingw-w64 toolchain for i686 is installed.])],
       [${PATH}]dnl
     )
   ]
@@ -225,47 +285,47 @@ dnl         [<git repo to clone>]
 dnl       )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-binutils-gdb],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-binutils-gdb/],
-  [MIPS_BINUTILS_GDB_SRCDIR]dnl
+  [CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_GDB_SRCDIR]dnl
 )
-AC_SUBST(MIPS_BINUTILS_GDB_SRCDIR)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_GDB_SRCDIR)
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-gcc],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-gcc/],
-  [MIPS_GCC_SRCDIR]dnl
+  [CHIPCRAFT_TOOLCHAIN_MIPS_GCC_SRCDIR]dnl
 )
-AC_SUBST(MIPS_GCC_SRCDIR)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_MIPS_GCC_SRCDIR)
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-newlib],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-newlib/],
-  [MIPS_NEWLIB_SRCDIR]dnl
+  [CHIPCRAFT_TOOLCHAIN_MIPS_NEWLIB_SRCDIR]dnl
 )
-AC_SUBST(MIPS_NEWLIB_SRCDIR)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_MIPS_NEWLIB_SRCDIR)
 dnl TODO: future RISC-V extensions
 dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-binutils-gdb],
 dnl   [chipcraft-git:REPOSITORIES/chipcraft-riscv-binutils-gdb/],
-dnl   [RISCV_BINUTILS_GDB_SRCDIR]dnl
+dnl   [CHIPCRAFT_TOOLCHAIN_RISCV_BINUTILS_GDB_SRCDIR]dnl
 dnl )
-dnl AC_SUBST(RISCV_BINUTILS_GDB_SRCDIR)
+dnl AC_SUBST(CHIPCRAFT_TOOLCHAIN_RISCV_BINUTILS_GDB_SRCDIR)
 dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-gcc],
 dnl   [chipcraft-git:REPOSITORIES/chipcraft-riscv-gcc/],
-dnl   [RISCV_GCC_SRCDIR]dnl
+dnl   [CHIPCRAFT_TOOLCHAIN_RISCV_GCC_SRCDIR]dnl
 dnl )
-dnl AC_SUBST(RISCV_GCC_SRCDIR)
+dnl AC_SUBST(CHIPCRAFT_TOOLCHAIN_RISCV_GCC_SRCDIR)
 dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-newlib],
 dnl   [chipcraft-git:REPOSITORIES/chipcraft-riscv-newlib/],
-dnl   [RISCV_NEWLIB_SRCDIR]dnl
+dnl   [CHIPCRAFT_TOOLCHAIN_RISCV_NEWLIB_SRCDIR]dnl
 dnl )
-dnl AC_SUBST(RISCV_NEWLIB_SRCDIR)
+dnl AC_SUBST(CHIPCRAFT_TOOLCHAIN_RISCV_NEWLIB_SRCDIR)
 
 dnl check whether our patched crosstool-ng is present
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/tools/chipcraft-crosstool-ng],
   [chipcraft-git:REPOSITORIES/chipcraft-crosstool-ng/],
-  [CT_NG_SRCDIR]dnl
+  [CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR]dnl
 )
-AC_SUBST(CT_NG_SRCDIR)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)
 dnl given crosstool-ng may have already been built
 dnl in that case we will only install it to known
 dnl location during make step
-AM_CONDITIONAL([CT_NG_ALREADY_BUILT],
-  [AS_EXECUTABLE_P(${CT_NG_SRCDIR}/ct-ng)]dnl
+AM_CONDITIONAL([CHIPCRAFT_TOOLCHAIN_CT_NG_ALREADY_BUILT],
+  [AS_EXECUTABLE_P(${CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR}/ct-ng)]dnl
 )
 
 dnl must be called last

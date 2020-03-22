@@ -12,6 +12,8 @@ EXTRA_DIST = \
   resources \
   $(EOL)
 
+# directory where all the building shall be done
+WORKDIR = $(abs_top_builddir)/workdir
 # directory where 3rd party tools used for
 # building the toolchain shall be installed
 LOCALROOT = $(abs_top_builddir)/localroot
@@ -27,126 +29,180 @@ $(abs_top_srcdir)/configure: \
 	&& autoconf -I m4 \
 	$(EOL)
 
-if CT_NG_ALREADY_BUILT
+$(WORKDIR):
+	$(MKDIR_P) $@
+
+$(LOCALROOT):
+	$(MKDIR_P) $@
+
+$(OUTPUTROOT):
+	$(MKDIR_P) $@
+
+if CHIPCRAFT_TOOLCHAIN_CT_NG_ALREADY_BUILT
 # when installing we force prefix because
 # we have been given an already configured and built ct-ng sources
 $(LOCALROOT)/bin/ct-ng: \
-  $(CT_NG_SRCDIR)/Makefile \
-  $(CT_NG_SRCDIR)/ct-ng \
+  $(LOCALROOT)
+  $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/Makefile \
+  $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/ct-ng \
   $(EOL)
-	$(MKDIR_P) $(LOCALROOT)
-	$(MAKE) -C '$(CT_NG_SRCDIR)' \
+	$(MAKE) -C '$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)' \
 	  prefix=$(LOCALROOT) \
 	  install \
 	  $(EOL)
-else !CT_NG_ALREADY_BUILT
+else !CHIPCRAFT_TOOLCHAIN_CT_NG_ALREADY_BUILT
 # this requires $(CT_NG_SRCDIR) to be writable
 # however default path points to builddir
 # which should always be writable
-$(CT_NG_SRCDIR)/configure: \
-  $(CT_NG_SRCDIR)/bootstrap \
+$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/configure: \
+  $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/bootstrap \
   $(EOL)
-	$(IS_DIR) '$(CT_NG_SRCDIR)'
-	$(CD) '$(CT_NG_SRCDIR)' \
-	&& $(CT_NG_SRCDIR)/bootstrap \
+	$(IS_DIR) '$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)'
+	$(CD) '$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)' \
+	&& $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/bootstrap \
 	$(EOL)
 
-$(LOCALROOT)/build/ct-ng/Makefile: \
-  $(CT_NG_SRCDIR)/configure \
+$(WORKDIR)/ct-ng:
+	$(MKDIR_P) $@
+
+$(WORKDIR)/ct-ng/Makefile: \
+  $(WORKDIR) \
+  $(WORKDIR)/ct-ng \
+  $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/configure \
   $(EOL)
-	$(MKDIR_P) $(dir $@)
-	$(CD) '$(dir $@)' \
-	&& $(CT_NG_SRCDIR)/configure \
+	$(CD) '$(word 2,$^)' \
+	&& $(word 3,$^) \
 	  --prefix $(LOCALROOT) \
 	$(EOL)
 
-# when installing we force prefix because
-# we may have been given an already configured ct-ng sources
-$(LOCALROOT)/bin/ct-ng: \
-  $(LOCALROOT)/build/ct-ng/Makefile \
+$(WORKDIR)/ct-ng/ct-ng: \
+  $(WORKDIR)/ct-ng/Makefile \
   $(EOL)
-	$(IS_DIR) '$(LOCALROOT)/build/ct-ng'
-	$(MAKE) -C '$(LOCALROOT)/build/ct-ng'
-	$(MAKE) -C '$(LOCALROOT)/build/ct-ng' \
-	  prefix=$(LOCALROOT) \
+	$(MAKE) -C '$(dir $(word 1,$^))'
+
+$(LOCALROOT)/bin/ct-ng: \
+  $(WORKDIR)/ct-ng/ct-ng \
+  $(EOL)
+	$(MAKE) -C '$(dir $(word 1,$^))' \
 	  install \
 	  $(EOL)
-endif !CT_NG_ALREADY_BUILT
+endif !CHIPCRAFT_TOOLCHAIN_CT_NG_ALREADY_BUILT
 
-LIBC_SO_PATH = $(shell \
-  find /usr/ -path "*/libc.so" -printf "%h" -quit  2>/dev/null \
-)
-LIBM_A_PATH = $(shell \
-  find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit 2>/dev/null \
-)
-CT_TARBALLS_STORAGE = $(abs_top_builddir)/tarballs
-CT_NG_EXTRA_LDFLAGS_FOR_BUILD = -L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)
-CT_NG_EXTRA_LDFLAGS_FOR_HOST =
-CT_NG_HOST_TRIPLET =
+# LIBC_A_PATH = $(shell \
+#   find /usr/ -path "*/libc.so" -printf "%h" -quit  2>/dev/null \
+# )
+# LIBC_SO_PATH = $(shell \
+#   find /usr/ -path "*/libc.so" -printf "%h" -quit  2>/dev/null \
+# )
+# LIBM_A_PATH = $(shell \
+#   find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit 2>/dev/null \
+# )
+
+CT_TARBALLS_STORAGE = $(WORKDIR)/tarballs
+# CT_NG_EXTRA_LDFLAGS_FOR_BUILD = -L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)
+CT_EXTRA_LDFLAGS_FOR_BUILD =
+CT_EXTRA_LDFLAGS_FOR_HOST =
+CT_HOST_TRIPLET =
 
 $(CT_TARBALLS_STORAGE):
 	$(MKDIR_P) $@
 
-$(LOCALROOT)/toolchain/mips/%/.config: \
-  $(abs_top_srcdir)/resources/configs/mips-%.in\
+$(WORKDIR)/toolchain/%/:
+	$(MKDIR_P) $@
+
+$(WORKDIR)/toolchain/host/.config: \
+  $(WORKDIR)/toolchain/host/ \
+  $(abs_top_srcdir)/resources/configs/host.in \
   $(CT_TARBALLS_STORAGE) \
   $(EOL)
-	$(MKDIR_P) $(dir $@)
 	$(SED) \
 	  " \
-	    s|@TARBALLS_STORAGE@|$(CT_TARBALLS_STORAGE)|; \
-	    s|@OUTPUTROOT@|$(OUTPUTROOT)|; \
-	    s|@MAKE_JOBS@|$(shell nproc)|; \
-	    s|@EXTRA_LDFLAGS_FOR_BUILD@|$(CT_NG_EXTRA_LDFLAGS_FOR_BUILD)|; \
-	    s|@EXTRA_LDFLAGS_FOR_HOST@|$(CT_NG_EXTRA_LDFLAGS_FOR_HOST)|; \
-	    s|@BUILD_TRIPLET@|$(LINUX_TRIPLET)|; \
-	    s|@HOST_TRIPLET@|$(CT_NG_HOST_TRIPLET)|; \
-	    s|@BINUTILS_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
-	    s|@NEWLIB_URL@|$(MIPS_NEWLIB_SRCDIR)|; \
-	    s|@GCC_URL@|$(MIPS_GCC_SRCDIR)|; \
-	    s|@GDB_URL@|$(MIPS_BINUTILS_GDB_SRCDIR)|; \
+	    s|!CT_TARBALLS_STORAGE!|$(CT_TARBALLS_STORAGE)|; \
+	    s|!CT_OUTPUT_DIR!|$(LOCALROOT)|; \
+	    s|!CT_JOBS!|$(CHIPCRAFT_TOOLCHAIN_CPUS)|; \
+	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)|; \
+	    s|!CT_HOST_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)|; \
+	    s|!CT_BITNESS!|$(CHIPCRAFT_TOOLCHAIN_BITNESS)|; \
+	    s|!CT_KERNEL_VERSION!|$(CHIPCRAFT_TOOLCHAIN_KERNEL)|; \
+	    s|!CT_KERNEL_MAJOR!|$(CHIPCRAFT_TOOLCHAIN_KERNEL_MAJOR)|; \
+	    s|!CT_KERNEL_MINOR!|$(CHIPCRAFT_TOOLCHAIN_KERNEL_MINOR)|; \
 	  " \
-	$< > $@ \
+	$(word 2,$^) > $@ \
 	$(EOL)
 
-if LINUX_TOOLCHAIN
+$(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
+$(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++: \
+  $(WORKDIR)/toolchain/host/.config \
+  $(LOCALROOT)/bin/ct-ng \
+  $(EOL)
+	$(CD) $(dir $(word 1,$^)) \
+	&& $(word 2,$^) build \
+	$(EOL)
+
+host: \
+  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
+  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++
+
+$(WORKDIR)/toolchain/mips/%/.config: \
+  $(WORKDIR)/toolchain/mips/%/ \
+  $(abs_top_srcdir)/resources/configs/mips.in \
+  $(CT_TARBALLS_STORAGE) \
+  $(EOL)
+	$(SED) \
+	  " \
+	    s|!CT_TARBALLS_STORAGE!|$(CT_TARBALLS_STORAGE)|; \
+	    s|!CT_OUTPUT_DIR!|$(OUTPUTROOT)|; \
+	    s|!CT_JOBS!|$(CHIPCRAFT_TOOLCHAIN_CPUS)|; \
+	    s|!CT_EXTRA_LDFLAGS_FOR_BUILD!|$(CT_EXTRA_LDFLAGS_FOR_BUILD)|; \
+	    s|!CT_EXTRA_LDFLAGS_FOR_HOST!|$(CT_EXTRA_LDFLAGS_FOR_HOST)|; \
+	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)|; \
+	    s|!CT_HOST_TRIPLET!|$(CT_HOST_TRIPLET)|; \
+	    s|!CT_BINUTILS_URL!|$(CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_GDB_SRCDIR)|; \
+	    s|!CT_NEWLIB_URL!|$(CHIPCRAFT_TOOLCHAIN_MIPS_NEWLIB_SRCDIR)|; \
+	    s|!CT_GCC_URL!|$(CHIPCRAFT_TOOLCHAIN_MIPS_GCC_SRCDIR)|; \
+	    s|!CT_GDB_URL!|$(CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_GDB_SRCDIR)|; \
+	  " \
+	$(word 2,$^) > $@ \
+	$(EOL)
+
+if CHIPCRAFT_TOOLCHAIN_LINUX
 # one variable assignment per rule!
-$(LOCALROOT)/toolchain/mips/linux/.config: \
-  CT_NG_HOST_TRIPLET = $(LINUX_TRIPLET)
+$(WORKDIR)/toolchain/mips/linux/.config: \
+  CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)
 
-$(OUTPUTROOT)/$(LINUX_TRIPLET): \
-  $(LOCALROOT)/toolchain/mips/linux/.config \
+$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET): \
+  $(WORKDIR)/toolchain/mips/linux/.config \
   $(LOCALROOT)/bin/ct-ng \
   $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(word 2,$^) build \
 	$(EOL)
 
-LINUX_DEPENDENCY = $(OUTPUTROOT)/$(LINUX_TRIPLET)
-else !LINUX_TOOLCHAIN
+LINUX_DEPENDENCY = $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)
+else !CHIPCRAFT_TOOLCHAIN_LINUX
 LINUX_DEPENDENCY =
-endif !LINUX_TOOLCHAIN
+endif !CHIPCRAFT_TOOLCHAIN_LINUX
 
-if WINDOWS_TOOLCHAIN
-$(LOCALROOT)/toolchain/mips/windows/.config: \
-  CT_NG_HOST_TRIPLET = $(WINDOWS_TRIPLET)
+if CHIPCRAFT_TOOLCHAIN_WINDOWS
+$(WORKDIR)/toolchain/mips/windows/.config: \
+  CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
 
-$(OUTPUTROOT)/$(WINDOWS_TRIPLET): \
-  $(LOCALROOT)/toolchain/mips/windows/.config \
+$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
+  $(WORKDIR)/toolchain/mips/windows/.config \
   $(LOCALROOT)/bin/ct-ng \
   $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(word 2,$^) build \
 	$(EOL)
 
-WINDOWS_DEPENDENCY = $(OUTPUTROOT)/$(WINDOWS_TRIPLET)
-else !WINDOWS_TOOLCHAIN
+WINDOWS_DEPENDENCY = $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
+else !CHIPCRAFT_TOOLCHAIN_WINDOWS
 WINDOWS_DEPENDENCY =
-endif !WINDOWS_TOOLCHAIN
+endif !CHIPCRAFT_TOOLCHAIN_WINDOWS
 
-linux: $(LINUX_DEPENDENCY)
+linux: host $(LINUX_DEPENDENCY)
 
-windows: $(WINDOWS_DEPENDENCY)
+windows: host $(WINDOWS_DEPENDENCY)
 
 all: linux windows
 
