@@ -37,6 +37,17 @@ AS_VAR_SET(ABS_TOP_SRCDIR, `cd ${srcdir} && pwd`)
 dnl assume pwd is the build directory
 AS_VAR_SET(ABS_TOP_BUILDDIR, `pwd`)
 
+dnl check whether $HOME/.ssh/config exists
+dnl and is set up for chipcraft-git
+AC_CHECK_FILE([${HOME}/.ssh/config],
+  [
+    AS_IF([test "x$(grep 'chipcraft-git' ${HOME}/.ssh/config)" = "x"],
+      [AC_MSG_ERROR([SSH configuration not set up. Create ${HOME}/.ssh/config with Host chipcraft-git pointing to location where repositories can be obtained.])]dnl
+    )
+  ],
+  [AC_MSG_ERROR([SSH configuration not set up. Create ${HOME}/.ssh/config with Host chipcraft-git pointing to location where repositories can be obtained.])]dnl
+)
+
 dnl get information about our buildsystem
 AC_CANONICAL_BUILD
 AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET,
