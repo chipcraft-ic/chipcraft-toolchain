@@ -230,7 +230,7 @@ AS_VAR_SET_IF(GIT,
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/binutils],
-  [chipcraft-git:REPOSITORIES/chipcraft-mips-binutils/],
+  [chipcraft-git:REPOSITORIES/chipcraft-mips-binutils-gdb/],
   [CHIPCRAFT_TOOLCHAIN_BINUTILS_SRCDIR]dnl
 )
 AS_VAR_SET_IF(GIT,
