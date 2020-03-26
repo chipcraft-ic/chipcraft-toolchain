@@ -1,9 +1,11 @@
 VPATH += $(abs_top_builddir)
 
+EOL =
+COMMA =,
+
 CD = cd
 IS_DIR = test -d
 # end of line for ease of use in multiline definitions
-EOL =
 MAKE = make
 
 EXTRA_DIST = \
@@ -31,21 +33,11 @@ $(abs_top_srcdir)/configure: \
 	&& autoconf -I m4 \
 	$(EOL)
 
-$(WORKDIR)/%/: \
-	$(MKDIR_P) $@
-
-$(LOCALROOT):
-	$(MKDIR_P) $@
-
-$(OUTPUTROOT):
-	$(MKDIR_P) $@
-
-COMPONENT_SRCDIR =
-COMPONENT_PREREQUISITES =
-COMPONENT_BUILT_BIN =
-
-# installer(package, srcdir, prerequisites, build_check_file)
+# installer(package, srcdir, prerequisites, build_check_file, configure_flags)
 define installer
+$$(WORKDIR)/$1/:
+	$$(MKDIR_P) $$@
+
 $$(WORKDIR)/$1/Makefile: \
   $$(WORKDIR)/$1/ \
   $2/configure \
@@ -54,12 +46,15 @@ $$(WORKDIR)/$1/Makefile: \
 	$$(CD) '$$(word 1,$$^)' \
 	&& $$(word 2,$$^) \
 	  --prefix $$(LOCALROOT) \
+	  $5 \
 	$$(EOL)
 
 $$(WORKDIR)/$1/$4: \
   $$(WORKDIR)/$1/Makefile \
   $$(EOL)
-	$$(MAKE) -C '$$(WORKDIR)/$1'
+	$$(MAKE) -C '$$(WORKDIR)/$1' \
+	CPPFLAGS+="-I$$(LOCALROOT)/include -I$$(LOCALROOT)/include/ncurses" \
+	$$(EOL)
 
 $$(LOCALROOT)/bin/$1: \
   $$(WORKDIR)/$1/$4 \
@@ -70,11 +65,11 @@ $$(LOCALROOT)/bin/$1: \
 	  $$(EOL)
 endef
 
-$(eval $(call installer,m4,$(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR),,src/m4))
-$(eval $(call installer,autoconf,$(CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR),$(LOCALROOT)/bin/m4,bin/autoconf))
-$(eval $(call installer,automake,$(CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR),$(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf,bin/automake))
-$(eval $(call installer,libtool,$(CHIPCRAFT_TOOLCHAIN_LIBTOOL_SRCDIR),$(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf $(LOCALROOT)/bin/automake,libtool))
-$(eval $(call installer,make,$(CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR),$(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf $(LOCALROOT)/bin/automake $(LOCALROOT)/bin/libtool,make))
+$(eval $(call installer,m4,$(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR),,src/m4,))
+$(eval $(call installer,autoconf,$(CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR),$(LOCALROOT)/bin/m4,bin/autoconf,))
+$(eval $(call installer,automake,$(CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR),$(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf,bin/automake,))
+$(eval $(call installer,libtool,$(CHIPCRAFT_TOOLCHAIN_LIBTOOL_SRCDIR),$(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf $(LOCALROOT)/bin/automake,libtool,))
+$(eval $(call installer,make,$(CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR),$(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf $(LOCALROOT)/bin/automake $(LOCALROOT)/bin/libtool,make,))
 
 AUTOTOOLS = \
   $(LOCALROOT)/bin/m4 \
@@ -84,10 +79,10 @@ AUTOTOOLS = \
   $(LOCALROOT)/bin/make \
   $(EOL)
 
-$(eval $(call installer,gettext,$(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR),$(AUTOTOOLS),gettext-runtime/src/gettext))
-$(eval $(call installer,bison,$(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext,src/bison))
-$(eval $(call installer,flex,$(CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison,src/flex))
-$(eval $(call installer,gawk,$(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison $(LOCALROOT)/bin/flex,src/gawk))
+$(eval $(call installer,gettext,$(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR),$(AUTOTOOLS),gettext-runtime/src/gettext,))
+$(eval $(call installer,bison,$(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext,src/bison,))
+$(eval $(call installer,flex,$(CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison,src/flex,))
+$(eval $(call installer,gawk,$(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison $(LOCALROOT)/bin/flex,src/gawk,))
 
 TEXTTOOLS = \
   $(LOCALROOT)/bin/gettext \
@@ -98,14 +93,13 @@ TEXTTOOLS = \
 
 # install ncurses
 $(WORKDIR)/ncurses/Makefile: \
-  $(WORKDIR) \
   $(WORKDIR)/ncurses/ \
   $(CHIPCRAFT_TOOLCHAIN_NCURSES_SRCDIR)/configure \
   $(AUTOTOOLS) \
   $(TEXTTOOLS) \
   $(EOL)
-	$(CD) '$(word 2,$^)' \
-	&& $(word 3,$^) \
+	$(CD) '$(word 1,$^)' \
+	&& $(word 2,$^) \
 	  --prefix $(LOCALROOT) \
 	  --with-shared \
 	  --without-debug \
@@ -126,36 +120,7 @@ $(LOCALROOT)/lib/libncurses.so: \
 	  install \
 	  $(EOL)
 
-# install ct-ng
-$(WORKDIR)/ct-ng/Makefile: \
-  $(WORKDIR) \
-  $(WORKDIR)/ct-ng/ \
-  $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/configure \
-  $(AUTOTOOLS) \
-  $(TEXTTOOLS) \
-  $(LOCALROOT)/lib/libncurses.so \
-  $(EOL)
-	$(CD) '$(word 2,$^)' \
-	&& $(word 3,$^) \
-	  --prefix $(LOCALROOT) \
-	  CURSES_LIBS="-L$(LOCALROOT)/lib -Wl,--rpath -Wl,$(LOCALROOT)/lib -lncurses" \
-	  CURSES_CFLAGS="-I$(LOCALROOT)/include -I$(LOCALROOT)/include/ncurses" \
-	$(EOL)
-
-$(WORKDIR)/ct-ng/ct-ng: \
-  $(WORKDIR)/ct-ng/Makefile \
-  $(EOL)
-	$(MAKE) -C '$(dir $(word 1,$^))' \
-	CPPFLAGS+="-I$(LOCALROOT)/include -I$(LOCALROOT)/include/ncurses" \
-	$(EOL)
-
-$(LOCALROOT)/bin/ct-ng: \
-  $(WORKDIR)/ct-ng/ct-ng \
-  $(EOL)
-	$(MAKE) -C '$(WORKDIR)/ct-ng' \
-	  prefix=$(LOCALROOT) \
-	  install \
-	  $(EOL)
+$(eval $(call installer,ct-ng,$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR),$(AUTOTOOLS) $(TEXTTOOLS) $(LOCALROOT)/lib/libncurses.so,ct-ng,CURSES_LIBS="-L$(LOCALROOT)/lib -Wl$(COMMA)--rpath -Wl$(COMMA)$(LOCALROOT)/lib -lncurses" CURSES_CFLAGS="-I$(LOCALROOT)/include -I$(LOCALROOT)/include/ncurses"))
 
 CT_EXTRA_LDFLAGS_FOR_BUILD =
 CT_EXTRA_LDFLAGS_FOR_HOST =
