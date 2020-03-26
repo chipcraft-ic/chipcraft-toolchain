@@ -303,17 +303,14 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-binutils-gdb]
   [chipcraft-git:REPOSITORIES/chipcraft-mips-binutils-gdb/],
   [CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_GDB_SRCDIR]dnl
 )
-AC_SUBST(CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_GDB_SRCDIR)
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-gcc],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-gcc/],
   [CHIPCRAFT_TOOLCHAIN_MIPS_GCC_SRCDIR]dnl
 )
-AC_SUBST(CHIPCRAFT_TOOLCHAIN_MIPS_GCC_SRCDIR)
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-newlib],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-newlib/],
   [CHIPCRAFT_TOOLCHAIN_MIPS_NEWLIB_SRCDIR]dnl
 )
-AC_SUBST(CHIPCRAFT_TOOLCHAIN_MIPS_NEWLIB_SRCDIR)
 dnl TODO: future RISC-V extensions
 dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-binutils-gdb],
 dnl   [chipcraft-git:REPOSITORIES/chipcraft-riscv-binutils-gdb/],
@@ -336,7 +333,6 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/chipcraft-crosstoo
   [chipcraft-git:REPOSITORIES/chipcraft-crosstool-ng/],
   [CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR]dnl
 )
-AC_SUBST(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)
 
 dnl must be called last
 AC_OUTPUT dnl executes all operations needed to produce the output Makefile

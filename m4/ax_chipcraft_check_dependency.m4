@@ -57,7 +57,10 @@ AC_DEFUN([AX_CHIPCRAFT_CHECK_DEPENDENCY],
       ]
     )
     AS_IF([test "x$3" != "x"],
-      [AS_VAR_SET($3, "${ax_chipcraft_dependency_path}")]dnl
+      [
+        AS_VAR_SET($3, "${ax_chipcraft_dependency_path}")
+        AC_SUBST($3)
+      ]dnl
     )
     AS_UNSET([ax_chipcraft_dependency_path])
     m4_popdef([HELP_STRING])

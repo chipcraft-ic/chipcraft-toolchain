@@ -20,7 +20,7 @@ LOCALROOT = $(abs_top_builddir)/localroot
 # directory where finished toolchains will be installed
 OUTPUTROOT = $(abs_top_builddir)/outputroot
 
-export PATH=$(LOCALROOT)/bin:$(PATH)
+PATH := $(LOCALROOT)/bin:$(PATH)
 
 # handle changes in configure.ac
 $(abs_top_srcdir)/configure: \
@@ -44,90 +44,71 @@ $(LOCALROOT):
 $(OUTPUTROOT):
 	$(MKDIR_P) $@
 
+COMPONENT_SRCDIR =
+COMPONENT_PREREQUISITES =
+COMPONENT_BUILT_BIN =
 
-# generic installer
-$(WORKDIR)/%/Makefile: \
-  $(WORKDIR)/%/ \
-  $(COMPONENT_SRCDIR)/configure \
-  $(COMPONENT_PREREQUISITES) \
-  $(EOL)
-	$(CD) '$(COMPONENT_SRCDIR)' \
-	&& $(word 2,$^) \
-	  --prefix $(LOCALROOT) \
-	$(EOL)
+# installer(package, srcdir, prerequisites, build_check_file)
+define installer
+$$(WORKDIR)/$1/Makefile: \
+  $$(WORKDIR)/$1/ \
+  $2/configure \
+  $3 \
+  $$(EOL)
+	$$(CD) '$$(word 1,$$^)' \
+	&& $$(word 2,$$^) \
+	  --prefix $$(LOCALROOT) \
+	$$(EOL)
 
-$(WORKDIR)/%/$(COMPONENT_BUILT_BIN): \
-  $(WORKDIR)/%/Makefile \
-  $(EOL)
-	$(MAKE) -C '$(dir $(word 1,$^))'
+$$(WORKDIR)/$1/$4: \
+  $$(WORKDIR)/$1/Makefile \
+  $$(EOL)
+	$$(MAKE) -C '$$(WORKDIR)/$1'
 
-$(LOCALROOT)/bin/%: \
-  $(WORKDIR)/%/$(COMPONENT_BUILT_BIN) \
-  $(EOL)
-	$(MAKE) -C '$(WORKDIR)/$*' \
-	  prefix=$(LOCALROOT) \
+$$(LOCALROOT)/bin/$1: \
+  $$(WORKDIR)/$1/$4 \
+  $$(EOL)
+	$$(MAKE) -C '$$(WORKDIR)/$1' \
+	  prefix=$$(LOCALROOT) \
 	  install \
-	  $(EOL)
+	  $$(EOL)
+endef
 
-need_bin_%: $(LOCALROOT)/bin/%
-
-need_bin_m4: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR)
-need_bin_m4: COMPONENT_PREREQUISITES =
-need_bin_m4: COMPONENT_BUILT_BIN = src/m4
-
-need_bin_autoconf: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR)
-need_bin_autoconf: COMPONENT_PREREQUISITES = need_bin_m4
-need_bin_autoconf: COMPONENT_BUILT_BIN = bin/autoconf
-
-need_bin_automake: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR)
-need_bin_automake: COMPONENT_PREREQUISITES = need_bin_m4 need_bin_autoconf
-need_bin_automake: COMPONENT_BUILT_BIN = bin/automake
-
-need_bin_libtool: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_LIBTOOL_SRCDIR)
-need_bin_libtool: \
-  COMPONENT_PREREQUISITES = need_bin_m4 need_bin_autoconf need_bin_automake
-need_bin_libtool: COMPONENT_BUILT_BIN = libtool
-
-need_bin_make: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR)
-need_bin_make: \
-  COMPONENT_PREREQUISITES = \
-    need_bin_m4 \
-    need_bin_autoconf \
-    need_bin_automake \
-    need_bin_libtool
-need_bin_make: COMPONENT_BUILT_BIN = make
+eval(call(installer(m4, $(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR), '', src/m4)))
+eval(call(installer(autoconf, $(CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR), \
+  $(LOCALROOT)/bin/m4, bin/autoconf)))
+eval(call(installer(automake, $(CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR), \
+  $(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf, bin/automake)))
+eval(call(installer(libtool, $(CHIPCRAFT_TOOLCHAIN_LIBTOOL_SRCDIR), \
+  $(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf $(LOCALROOT)/bin/automake, \
+  libtool)))
+eval(call(installer(make, $(CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR), \
+  $(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool, make)))
 
 AUTOTOOLS = \
-  need_bin_m4 \
-  need_bin_autoconf \
-  need_bin_automake \
-  need_bin_libtool \
-  need_bin_make \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/make \
   $(EOL)
 
-need_bin_gettext: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR)
-need_bin_gettext: COMPONENT_PREREQUISITES = $(AUTOTOOLS)
-need_bin_gettext: COMPONENT_BUILT_BIN = gettext-runtime/src/gettext
-
-need_bin_bison: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR)
-need_bin_bison: COMPONENT_PREREQUISITES = $(AUTOTOOLS) need_bin_gettext
-need_bin_bison: COMPONENT_BUILT_BIN = src/bison
-
-need_bin_flex: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR)
-need_bin_flex: COMPONENT_PREREQUISITES = $(AUTOTOOLS) need_bin_gettext need_bin_bison
-need_bin_flex: COMPONENT_BUILT_BIN = src/flex
-
-need_bin_gawk: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR)
-need_bin_gawk: \
-  COMPONENT_PREREQUISITES = \
-    $(AUTOTOOLS) need_bin_gettext need_bin_bison need_bin_flex
-need_bin_gawk: COMPONENT_BUILT_BIN = src/flex
+eval(call(installer(gettext, $(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR), \
+  $(AUTOTOOLS), gettext-runtime/src/gettext)))
+eval(call(installer(bison, $(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR), \
+  $(AUTOTOOLS) $(LOCALROOT)/bin/gettext, src/bison)))
+eval(call(installer(flex, $(CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR), \
+  $(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison, src/flex)))
+eval(call(installer(gawk, $(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR), \
+  $(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison \
+  $(LOCALROOT)/bin/flex, src/gawk)))
 
 TEXTTOOLS = \
-  need_bin_gettext \
-  need_bin_bison \
-  need_bin_flex \
-  need_bin_gawk \
+  $(LOCALROOT)/bin/gettext \
+  $(LOCALROOT)/bin/bison \
+  $(LOCALROOT)/bin/flex \
+  $(LOCALROOT)/bin/gawk \
   $(EOL)
 
 # install ncurses
@@ -245,8 +226,8 @@ $(WORKDIR)/toolchain/host/.config: \
 	    s|!CT_KERNEL_VERSION!|$(CHIPCRAFT_TOOLCHAIN_KERNEL)|; \
 	    s|!CT_KERNEL_MAJOR!|$(CHIPCRAFT_TOOLCHAIN_KERNEL_MAJOR)|; \
 	    s|!CT_KERNEL_MINOR!|$(CHIPCRAFT_TOOLCHAIN_KERNEL_MINOR)|; \
+	    $(SED_SRCDIR_SUBSTITUTIONS) \
 	  " \
-	  $(SED_SRCDIR_SUBSTITUTIONS) \
 	$(word 2,$^) > $@ \
 	$(EOL)
 
