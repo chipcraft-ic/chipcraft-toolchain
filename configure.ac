@@ -103,102 +103,6 @@ AC_PATH_PROGS_FEATURE_CHECK([GIT],
 )
 AC_SUBST(GIT)
 
-dnl check that libtool exists
-dnl libtool is needed by ct-ng
-dnl this macro used only for custom error messages
-AC_PATH_PROGS_FEATURE_CHECK([LIBTOOL_PROG],
-  [libtool],
-  [
-    AS_IF([${ac_path_LIBTOOL_PROG} --features &> /dev/null],
-      [
-        AS_VAR_SET(ac_cv_path_LIBTOOL_PROG, "${ac_path_LIBTOOL_PROG}")
-        AS_VAR_SET(ac_path_LIBTOOL_PROG_found, :)
-      ]dnl
-    )
-  ],
-  [
-    AC_MSG_ERROR([Libtool not found. Libtool can be installed from package manager: sudo apt-get install libtool libtool-bin on debian or ubuntu or sudo yum install libtool on redhat or centos. Libtool sources can be found at https://gnu.org/software/libtool.])
-  ],
-  [${PATH}]dnl
-)
-
-dnl yacc-like program is required for ct-ng
-dnl since it's not usually installed, check for it
-dnl we do not want to fail during ct-ng build stage
-AC_PROG_YACC
-dnl check if actually exists, since default is 'yacc' even if not found
-AC_PATH_PROGS_FEATURE_CHECK([YACC_PROG],
-  [${YACC}],
-  [
-    AS_IF([${ac_path_YACC_PROG} -V &> /dev/null],
-      [
-        ac_cv_path_YACC_PROG="${ac_path_YACC_PROG}"
-        ac_path_YACC_PROG_found=:
-      ]dnl
-    )
-  ],
-  [
-    AC_MSG_ERROR([Yacc-like lexer not found. It can be installed from package manager: sudo apt-get install bison on debian or ubuntu or sudo yum install bison on redhat or centos. Bison sources can be found at https://gnu.org/software/bison.])
-  ],
-  [${PATH}]dnl
-)
-
-dnl gawk is required for ct-ng
-dnl since it's not usually installed, check for it
-dnl we do not want to fail during ct-ng build stage
-AC_PATH_PROGS_FEATURE_CHECK([GAWK_PROG],
-  [gawk],
-  [
-    AS_IF([${ac_path_GAWK_PROG} --version &> /dev/null],
-      [
-        ac_cv_path_GAWK_PROG="${ac_path_GAWK_PROG}"
-        ac_path_GAWK_PROG_found=:
-      ]dnl
-    )
-  ],
-  [
-    AC_MSG_ERROR([Gawk not found. It can be installed from package manager: sudo apt-get install gawk on debian or ubuntu or sudo yum install gawk on redhat or centos. Gawk sources can be found at https://gnu.org/software/gawk.])
-  ],
-  [${PATH}]dnl
-)
-
-dnl lex-like program is required for ct-ng
-dnl since it's not usually installed, check for it
-dnl we do not want to fail during ct-ng build stage
-AC_PROG_LEX
-dnl check if actually exists, since default is 'yacc' even if not found
-AC_PATH_PROGS_FEATURE_CHECK([LEX_PROG],
-  [${LEX}],
-  [
-    AS_IF([${ac_path_LEX_PROG} -V &> /dev/null],
-      [
-        ac_cv_path_LEX_PROG="${ac_path_LEX_PROG}"
-        ac_path_YACC_PROG_found=:
-      ]dnl
-    )
-  ],
-  [
-    AC_MSG_ERROR([Lex-like lexer not found. It can be installed from package manager: sudo apt-get install flex on debian or ubuntu or sudo yum install flex on redhat or centos. Flex sources can be found at https://github.com/westes/flex.])
-  ],
-  [${PATH}]dnl
-)
-dnl we cannot allow LEX equal to ':'
-AS_IF([test "x${LEX}" = "x:"],
-  [
-    AC_MSG_ERROR([Lex-like lexer not found. It can be installed from package manager: sudo apt-get install flex on debian or ubuntu or sudo yum install flex on redhat or centos. Flex sources can be found at https://github.com/westes/flex.])
-  ]
-)
-
-dnl a curses library is required by ct-ng
-dnl since it's not usually installed, check for it
-dnl we do not want to fail during ct-ng build stage
-AX_WITH_CURSES
-AS_IF([test "x$ax_cv_curses" != "xyes"],
-  [
-    AC_MSG_ERROR([Resultant toolchain requires a curses library.])
-  ]dnl
-)
-
 dnl configure what should be built
 
 AC_ARG_ENABLE([linux-toolchain],
@@ -283,6 +187,107 @@ dnl TODO: change locations from /home/... to github
 dnl call: AX_CHIPCRAFT_CHECK_DEPENDENCY([</path/to/check/],
 dnl         [<git repo to clone>]
 dnl       )
+
+dnl first, check core buildsystem components
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/m4],
+  [chipcraft-git:REPOSITORIES/chipcraft-m4/],
+  [CHIPCRAFT_TOOLCHAIN_M4_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/autoconf],
+  [chipcraft-git:REPOSITORIES/chipcraft-autoconf/],
+  [CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/automake],
+  [chipcraft-git:REPOSITORIES/chipcraft-automake/],
+  [CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/libtool],
+  [chipcraft-git:REPOSITORIES/chipcraft-libtool/],
+  [CHIPCRAFT_TOOLCHAIN_LIBTOOL_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/make],
+  [chipcraft-git:REPOSITORIES/chipcraft-make/],
+  [CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR]dnl
+)
+dnl next, check build toolchain components
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/linux],
+  [chipcraft-git:REPOSITORIES/chipcraft-linux/],
+  [CHIPCRAFT_TOOLCHAIN_LINUX_SRCDIR]dnl
+)
+AS_VAR_SET_IF(GIT,
+  [${GIT} -C ${ABS_TOP_BUILDDIR}/components/linux checkout v${CHIPCRAFT_TOOLCHAIN_KERNEL}],
+  [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/binutils],
+  [chipcraft-git:REPOSITORIES/chipcraft-mips-binutils/],
+  [CHIPCRAFT_TOOLCHAIN_BINUTILS_SRCDIR]dnl
+)
+AS_VAR_SET_IF(GIT,
+  [${GIT} -C ${ABS_TOP_BUILDDIR}/components/binutils checkout chipcraft-binutils-2.34],
+  [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/bison],
+  [chipcraft-git:REPOSITORIES/chipcraft-bison/],
+  [CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/cloog],
+  [chipcraft-git:REPOSITORIES/chipcraft-cloog/],
+  [CHIPCRAFT_TOOLCHAIN_CLOOG_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/flex],
+  [chipcraft-git:REPOSITORIES/chipcraft-flex/],
+  [CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/gawk],
+  [chipcraft-git:REPOSITORIES/chipcraft-gawk/],
+  [CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/gcc],
+  [chipcraft-git:REPOSITORIES/chipcraft-mips-gcc/],
+  [CHIPCRAFT_TOOLCHAIN_GCC_SRCDIR]dnl
+)
+AS_VAR_SET_IF(GIT,
+  [${GIT} -C ${ABS_TOP_BUILDDIR}/components/gcc checkout chipcraft-gcc-9.3],
+  [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/gettext],
+  [chipcraft-git:REPOSITORIES/chipcraft-gettext/],
+  [CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/glibc],
+  [chipcraft-git:REPOSITORIES/chipcraft-glibc/],
+  [CHIPCRAFT_TOOLCHAIN_GLIBC_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/gmp],
+  [chipcraft-git:REPOSITORIES/chipcraft-gmp/],
+  [CHIPCRAFT_TOOLCHAIN_GMP_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/isl],
+  [chipcraft-git:REPOSITORIES/chipcraft-isl/],
+  [CHIPCRAFT_TOOLCHAIN_ISL_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/libiconv],
+  [chipcraft-git:REPOSITORIES/chipcraft-libiconv/],
+  [CHIPCRAFT_TOOLCHAIN_LIBICONV_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mpc],
+  [chipcraft-git:REPOSITORIES/chipcraft-mpc/],
+  [CHIPCRAFT_TOOLCHAIN_MPC_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mpfr],
+  [chipcraft-git:REPOSITORIES/chipcraft-mpfr/],
+  [CHIPCRAFT_TOOLCHAIN_MPFR_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/ncurses],
+  [chipcraft-git:REPOSITORIES/chipcraft-ncurses/],
+  [CHIPCRAFT_TOOLCHAIN_NCURSES_SRCDIR]dnl
+)
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/zlib],
+  [chipcraft-git:REPOSITORIES/chipcraft-zlib/],
+  [CHIPCRAFT_TOOLCHAIN_ZLIB_SRCDIR]dnl
+)
+
+dnl check final toolchain components
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-binutils-gdb],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-binutils-gdb/],
   [CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_GDB_SRCDIR]dnl
@@ -316,17 +321,11 @@ dnl )
 dnl AC_SUBST(CHIPCRAFT_TOOLCHAIN_RISCV_NEWLIB_SRCDIR)
 
 dnl check whether our patched crosstool-ng is present
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/tools/chipcraft-crosstool-ng],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/chipcraft-crosstool-ng],
   [chipcraft-git:REPOSITORIES/chipcraft-crosstool-ng/],
   [CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR]dnl
 )
 AC_SUBST(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)
-dnl given crosstool-ng may have already been built
-dnl in that case we will only install it to known
-dnl location during make step
-AM_CONDITIONAL([CHIPCRAFT_TOOLCHAIN_CT_NG_ALREADY_BUILT],
-  [AS_EXECUTABLE_P(${CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR}/ct-ng)]dnl
-)
 
 dnl must be called last
 AC_OUTPUT dnl executes all operations needed to produce the output Makefile

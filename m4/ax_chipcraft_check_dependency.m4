@@ -40,7 +40,7 @@ AC_DEFUN([AX_CHIPCRAFT_CHECK_DEPENDENCY],
       [AS_VAR_SET(ax_chipcraft_dependency_path, "$1")]dnl
     )
 
-    AC_CHECK_FILE([${ax_chipcraft_dependency_path}/configure.ac],
+    AC_CHECK_FILE([${ax_chipcraft_dependency_path}/configure],
       [],
       [
         AS_VAR_SET_IF(GIT,
@@ -50,7 +50,7 @@ AC_DEFUN([AX_CHIPCRAFT_CHECK_DEPENDENCY],
         ${GIT} clone $2 ${ax_chipcraft_dependency_path}
         ${GIT} -C ${ax_chipcraft_dependency_path} checkout chipcraft-master
         AS_UNSET(AS_TR_SH([ac_cv_file_${ax_chipcraft_dependency_path}/configure.ac]))
-        AC_CHECK_FILE([${ax_chipcraft_dependency_path}/configure.ac],
+        AC_CHECK_FILE([${ax_chipcraft_dependency_path}/configure],
           [],
           [AC_MSG_ERROR([BASENAME project is not valid])]dnl
         )

@@ -20,6 +20,8 @@ LOCALROOT = $(abs_top_builddir)/localroot
 # directory where finished toolchains will be installed
 OUTPUTROOT = $(abs_top_builddir)/outputroot
 
+export PATH=$(LOCALROOT)/bin:$(PATH)
+
 # handle changes in configure.ac
 $(abs_top_srcdir)/configure: \
   $(abs_top_srcdir)/configure.ac \
@@ -32,74 +34,163 @@ $(abs_top_srcdir)/configure: \
 $(WORKDIR):
 	$(MKDIR_P) $@
 
+$(WORKDIR)/%/: \
+  $(WORKDIR)
+	$(MKDIR_P) $@
+
 $(LOCALROOT):
 	$(MKDIR_P) $@
 
 $(OUTPUTROOT):
 	$(MKDIR_P) $@
 
-if CHIPCRAFT_TOOLCHAIN_CT_NG_ALREADY_BUILT
-# when installing we force prefix because
-# we have been given an already configured and built ct-ng sources
-$(LOCALROOT)/bin/ct-ng: \
-  $(LOCALROOT)
-  $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/Makefile \
-  $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/ct-ng \
+
+# generic installer
+$(WORKDIR)/%/Makefile: \
+  $(WORKDIR)/%/ \
+  $(COMPONENT_SRCDIR)/configure \
+  $(COMPONENT_PREREQUISITES) \
   $(EOL)
-	$(MAKE) -C '$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)' \
+	$(CD) '$(COMPONENT_SRCDIR)' \
+	&& $(word 2,$^) \
+	  --prefix $(LOCALROOT) \
+	$(EOL)
+
+$(WORKDIR)/%/$(COMPONENT_BUILT_BIN): \
+  $(WORKDIR)/%/Makefile \
+  $(EOL)
+	$(MAKE) -C '$(dir $(word 1,$^))'
+
+$(LOCALROOT)/bin/%: \
+  $(WORKDIR)/%/$(COMPONENT_BUILT_BIN) \
+  $(EOL)
+	$(MAKE) -C '$(WORKDIR)/$*' \
 	  prefix=$(LOCALROOT) \
 	  install \
 	  $(EOL)
-else !CHIPCRAFT_TOOLCHAIN_CT_NG_ALREADY_BUILT
-# this requires $(CT_NG_SRCDIR) to be writable
-# however default path points to builddir
-# which should always be writable
-$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/configure: \
-  $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/bootstrap \
+
+need_bin_%: $(LOCALROOT)/bin/%
+
+need_bin_m4: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR)
+need_bin_m4: COMPONENT_PREREQUISITES =
+need_bin_m4: COMPONENT_BUILT_BIN = src/m4
+
+need_bin_autoconf: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR)
+need_bin_autoconf: COMPONENT_PREREQUISITES = need_bin_m4
+need_bin_autoconf: COMPONENT_BUILT_BIN = bin/autoconf
+
+need_bin_automake: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR)
+need_bin_automake: COMPONENT_PREREQUISITES = need_bin_m4 need_bin_autoconf
+need_bin_automake: COMPONENT_BUILT_BIN = bin/automake
+
+need_bin_libtool: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_LIBTOOL_SRCDIR)
+need_bin_libtool: \
+  COMPONENT_PREREQUISITES = need_bin_m4 need_bin_autoconf need_bin_automake
+need_bin_libtool: COMPONENT_BUILT_BIN = libtool
+
+need_bin_make: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR)
+need_bin_make: \
+  COMPONENT_PREREQUISITES = \
+    need_bin_m4 \
+    need_bin_autoconf \
+    need_bin_automake \
+    need_bin_libtool
+need_bin_make: COMPONENT_BUILT_BIN = make
+
+AUTOTOOLS = \
+  need_bin_m4 \
+  need_bin_autoconf \
+  need_bin_automake \
+  need_bin_libtool \
+  need_bin_make \
   $(EOL)
-	$(IS_DIR) '$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)'
-	$(CD) '$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)' \
-	&& $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/bootstrap \
-	$(EOL)
 
-$(WORKDIR)/ct-ng:
-	$(MKDIR_P) $@
+need_bin_gettext: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR)
+need_bin_gettext: COMPONENT_PREREQUISITES = $(AUTOTOOLS)
+need_bin_gettext: COMPONENT_BUILT_BIN = gettext-runtime/src/gettext
 
-$(WORKDIR)/ct-ng/Makefile: \
+need_bin_bison: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR)
+need_bin_bison: COMPONENT_PREREQUISITES = $(AUTOTOOLS) need_bin_gettext
+need_bin_bison: COMPONENT_BUILT_BIN = src/bison
+
+need_bin_flex: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR)
+need_bin_flex: COMPONENT_PREREQUISITES = $(AUTOTOOLS) need_bin_gettext need_bin_bison
+need_bin_flex: COMPONENT_BUILT_BIN = src/flex
+
+need_bin_gawk: COMPONENT_SRCDIR = $(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR)
+need_bin_gawk: \
+  COMPONENT_PREREQUISITES = \
+    $(AUTOTOOLS) need_bin_gettext need_bin_bison need_bin_flex
+need_bin_gawk: COMPONENT_BUILT_BIN = src/flex
+
+TEXTTOOLS = \
+  need_bin_gettext \
+  need_bin_bison \
+  need_bin_flex \
+  need_bin_gawk \
+  $(EOL)
+
+# install ncurses
+$(WORKDIR)/ncurses/Makefile: \
   $(WORKDIR) \
-  $(WORKDIR)/ct-ng \
-  $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/configure \
+  $(WORKDIR)/ncurses/ \
+  $(CHIPCRAFT_TOOLCHAIN_NCURSES_SRCDIR)/configure \
+  $(AUTOTOOLS) \
+  $(TEXTTOOLS) \
   $(EOL)
 	$(CD) '$(word 2,$^)' \
 	&& $(word 3,$^) \
 	  --prefix $(LOCALROOT) \
+	  --with-shared \
+	  --without-debug \
+	$(EOL)
+
+$(WORKDIR)/ncurses/lib/ncurses.so \
+  $(WORKDIR)/ncurses/lib/ncurses.a: \
+  $(WORKDIR)/ncurses/Makefile \
+  $(EOL)
+	$(MAKE) -C '$(dir $(word 1,$^))'
+
+$(LOCALROOT)/lib/libncurses.so: \
+  $(WORKDIR)/ncurses/lib/ncurses.so \
+  $(WORKDIR)/ncurses/lib/ncurses.a \
+  $(EOL)
+	$(MAKE) -C '$(WORKDIR)/ncurses' \
+	  prefix=$(LOCALROOT) \
+	  install \
+	  $(EOL)
+
+# install ct-ng
+$(WORKDIR)/ct-ng/Makefile: \
+  $(WORKDIR) \
+  $(WORKDIR)/ct-ng/ \
+  $(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR)/configure \
+  $(AUTOTOOLS) \
+  $(TEXTTOOLS) \
+  $(LOCALROOT)/lib/libncurses.so \
+  $(EOL)
+	$(CD) '$(word 2,$^)' \
+	&& $(word 3,$^) \
+	  --prefix $(LOCALROOT) \
+	  CURSES_LIBS="-L$(LOCALROOT)/lib -Wl,--rpath -Wl,$(LOCALROOT)/lib -lncurses" \
+	  CURSES_CFLAGS="-I$(LOCALROOT)/include -I$(LOCALROOT)/include/ncurses" \
 	$(EOL)
 
 $(WORKDIR)/ct-ng/ct-ng: \
   $(WORKDIR)/ct-ng/Makefile \
   $(EOL)
-	$(MAKE) -C '$(dir $(word 1,$^))'
+	$(MAKE) -C '$(dir $(word 1,$^))' \
+	CPPFLAGS+="-I$(LOCALROOT)/include -I$(LOCALROOT)/include/ncurses" \
+	$(EOL)
 
 $(LOCALROOT)/bin/ct-ng: \
   $(WORKDIR)/ct-ng/ct-ng \
   $(EOL)
-	$(MAKE) -C '$(dir $(word 1,$^))' \
+	$(MAKE) -C '$(WORKDIR)/ct-ng' \
+	  prefix=$(LOCALROOT) \
 	  install \
 	  $(EOL)
-endif !CHIPCRAFT_TOOLCHAIN_CT_NG_ALREADY_BUILT
 
-# LIBC_A_PATH = $(shell \
-#   find /usr/ -path "*/libc.so" -printf "%h" -quit  2>/dev/null \
-# )
-# LIBC_SO_PATH = $(shell \
-#   find /usr/ -path "*/libc.so" -printf "%h" -quit  2>/dev/null \
-# )
-# LIBM_A_PATH = $(shell \
-#   find /usr/ -path "*$(LINUX_TRIPLET)*/libm.a" -printf "%h" -quit 2>/dev/null \
-# )
-
-CT_TARBALLS_STORAGE = $(WORKDIR)/tarballs
-# CT_NG_EXTRA_LDFLAGS_FOR_BUILD = -L$(LIBC_SO_PATH) -L$(LIBM_A_PATH)
 CT_EXTRA_LDFLAGS_FOR_BUILD =
 CT_EXTRA_LDFLAGS_FOR_HOST =
 CT_HOST_TRIPLET =
@@ -110,6 +201,35 @@ $(CT_TARBALLS_STORAGE):
 $(WORKDIR)/toolchain/%/:
 	$(MKDIR_P) $@
 
+# keep in sync with configure.ac
+SED_SRCDIR_SUBSTITUTIONS = \
+  " \
+    s|!CT_M4_URL!|$(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR)|; \
+    s|!CT_AUTOCONF_URL!|$(CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR)|; \
+    s|!CT_AUTOMAKE_URL!|$(CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR)|; \
+    s|!CT_LIBTOOL_URL!|$(CHIPCRAFT_TOOLCHAIN_LIBTOOL_SRCDIR)|; \
+    s|!CT_MAKE_URL!|$(CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR)|; \
+    s|!CT_BINUTILS_URL!|$(CHIPCRAFT_TOOLCHAIN_BINUTILS_SRCDIR)|; \
+    s|!CT_BISON_URL!|$(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR)|; \
+    s|!CT_CLOOG_URL!|$(CHIPCRAFT_TOOLCHAIN_CLOOG_SRCDIR)|; \
+    s|!CT_FLEX_URL!|$(CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR)|; \
+    s|!CT_GAWK_URL!|$(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR)|; \
+    s|!CT_GCC_URL!|$(CHIPCRAFT_TOOLCHAIN_GCC_SRCDIR)|; \
+    s|!CT_GETTEXT_URL!|$(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR)|; \
+    s|!CT_GLIBC_URL!|$(CHIPCRAFT_TOOLCHAIN_GLIBC_SRCDIR)|; \
+    s|!CT_GMP_URL!|$(CHIPCRAFT_TOOLCHAIN_GMP_SRCDIR)|; \
+    s|!CT_ISL_URL!|$(CHIPCRAFT_TOOLCHAIN_ISL_SRCDIR)|; \
+    s|!CT_LIBICONV_URL!|$(CHIPCRAFT_TOOLCHAIN_LIBICONV_SRCDIR)|; \
+    s|!CT_MPC_URL!|$(CHIPCRAFT_TOOLCHAIN_MPC_SRCDIR)|; \
+    s|!CT_MPFR_URL!|$(CHIPCRAFT_TOOLCHAIN_MPFR_SRCDIR)|; \
+    s|!CT_NCURSES_URL!|$(CHIPCRAFT_TOOLCHAIN_NCURSES_SRCDIR)|; \
+    s|!CT_ZLIB_URL!|$(CHIPCRAFT_TOOLCHAIN_ZLIB_SRCDIR)|; \
+    s|!CT_MIPS_BINUTILS_URL!|$(CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_SRCDIR)|; \
+    s|!CT_MIPS_GCC_URL!|$(CHIPCRAFT_TOOLCHAIN_MIPS_GCC_SRCDIR)|; \
+    s|!CT_MIPS_NEWLIB_URL!|$(CHIPCRAFT_TOOLCHAIN_MIPS_NEWLIB_SRCDIR)|; \
+    s|!CT_LINUX_URL!|$(CHIPCRAFT_TOOLCHAIN_LINUX_SRCDIR)|; \
+  "
+
 $(WORKDIR)/toolchain/host/.config: \
   $(WORKDIR)/toolchain/host/ \
   $(abs_top_srcdir)/resources/configs/host.in \
@@ -117,7 +237,6 @@ $(WORKDIR)/toolchain/host/.config: \
   $(EOL)
 	$(SED) \
 	  " \
-	    s|!CT_TARBALLS_STORAGE!|$(CT_TARBALLS_STORAGE)|; \
 	    s|!CT_OUTPUT_DIR!|$(LOCALROOT)|; \
 	    s|!CT_JOBS!|$(CHIPCRAFT_TOOLCHAIN_CPUS)|; \
 	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)|; \
@@ -127,6 +246,7 @@ $(WORKDIR)/toolchain/host/.config: \
 	    s|!CT_KERNEL_MAJOR!|$(CHIPCRAFT_TOOLCHAIN_KERNEL_MAJOR)|; \
 	    s|!CT_KERNEL_MINOR!|$(CHIPCRAFT_TOOLCHAIN_KERNEL_MINOR)|; \
 	  " \
+	  $(SED_SRCDIR_SUBSTITUTIONS) \
 	$(word 2,$^) > $@ \
 	$(EOL)
 
@@ -200,9 +320,9 @@ else !CHIPCRAFT_TOOLCHAIN_WINDOWS
 WINDOWS_DEPENDENCY =
 endif !CHIPCRAFT_TOOLCHAIN_WINDOWS
 
-linux: host $(LINUX_DEPENDENCY)
-
-windows: host $(WINDOWS_DEPENDENCY)
-
-all: linux windows
+#linux: host $(LINUX_DEPENDENCY)
+#
+#windows: host $(WINDOWS_DEPENDENCY)
+#
+#all: linux windows
 
