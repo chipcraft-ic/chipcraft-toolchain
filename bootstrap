@@ -55,6 +55,7 @@ clean () {
     aclocal.m4 \
     autom4te.cache \
     bootstrap.log \
+    bootstraproot \
     compile \
     components \
     config.guess \

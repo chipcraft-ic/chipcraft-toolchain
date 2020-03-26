@@ -17,9 +17,11 @@ EXTRA_DIST = \
 # directory where all the building shall be done
 WORKDIR = $(abs_top_builddir)/workdir
 # directory where 3rd party tools used for
-# building the toolchain shall be installed
+# building the toolchains shall be installed
 LOCALROOT = $(abs_top_builddir)/localroot
-# directory where finished toolchains will be installed
+# directory where bootstrap toolchain will be installed
+BOOTSTRAPROOT = $(abs_top_builddir)/bootstraproot
+# directory where finished bare metal toolchains will be installed
 OUTPUTROOT = $(abs_top_builddir)/outputroot
 
 PATH := $(LOCALROOT)/bin:$(PATH)
@@ -123,12 +125,6 @@ CT_EXTRA_LDFLAGS_FOR_BUILD =
 CT_EXTRA_LDFLAGS_FOR_HOST =
 CT_HOST_TRIPLET =
 
-$(CT_TARBALLS_STORAGE):
-	$(MKDIR_P) $@
-
-$(WORKDIR)/toolchain/%/:
-	$(MKDIR_P) $@
-
 # keep in sync with configure.ac
 SED_SRCDIR_SUBSTITUTIONS = \
   s|!CT_M4_URL!|$(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR)|; \
@@ -158,13 +154,13 @@ SED_SRCDIR_SUBSTITUTIONS = \
   $(EOL)
 
 $(WORKDIR)/toolchain/host/.config: \
-  $(WORKDIR)/toolchain/host/ \
   $(abs_top_srcdir)/resources/configs/host.in \
-  $(CT_TARBALLS_STORAGE) \
   $(EOL)
+	$(MKDIR_P) $(dir $@)
 	$(SED) \
 	  " \
-	    s|!CT_OUTPUT_DIR!|$(LOCALROOT)|; \
+	    s|!CT_LOCALROOT!|$(LOCALROOT)|; \
+	    s|!CT_OUTPUT_DIR!|$(BOOTSTRAPROOT)|; \
 	    s|!CT_JOBS!|$(CHIPCRAFT_TOOLCHAIN_CPUS)|; \
 	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)|; \
 	    s|!CT_HOST_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)|; \
@@ -174,7 +170,7 @@ $(WORKDIR)/toolchain/host/.config: \
 	    s|!CT_KERNEL_MINOR!|$(CHIPCRAFT_TOOLCHAIN_KERNEL_MINOR)|; \
 	    $(SED_SRCDIR_SUBSTITUTIONS) \
 	  " \
-	$(word 2,$^) > $@ \
+	$(word 1,$^) > $@ \
 	$(EOL)
 
 $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
