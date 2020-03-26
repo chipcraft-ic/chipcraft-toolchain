@@ -35,16 +35,13 @@ $(abs_top_srcdir)/configure: \
 
 # installer(package, srcdir, prerequisites, build_check_file, configure_flags)
 define installer
-$$(WORKDIR)/$1/:
-	$$(MKDIR_P) $$@
-
 $$(WORKDIR)/$1/Makefile: \
-  $$(WORKDIR)/$1/ \
   $2/configure \
   $3 \
   $$(EOL)
-	$$(CD) '$$(word 1,$$^)' \
-	&& $$(word 2,$$^) \
+	$$(MKDIR_P) '$$(WORKDIR)/$1'
+	$$(CD) '$$(WORKDIR)/$1' \
+	&& $$(word 1,$$^) \
 	  --prefix $$(LOCALROOT) \
 	  $5 \
 	$$(EOL)
@@ -93,13 +90,13 @@ TEXTTOOLS = \
 
 # install ncurses
 $(WORKDIR)/ncurses/Makefile: \
-  $(WORKDIR)/ncurses/ \
   $(CHIPCRAFT_TOOLCHAIN_NCURSES_SRCDIR)/configure \
   $(AUTOTOOLS) \
   $(TEXTTOOLS) \
   $(EOL)
-	$(CD) '$(word 1,$^)' \
-	&& $(word 2,$^) \
+	$(MKDIR_P) '$(dir $@)'
+	$(CD) '$(dir $@)' \
+	&& $(word 1,$^) \
 	  --prefix $(LOCALROOT) \
 	  --with-shared \
 	  --without-debug \
