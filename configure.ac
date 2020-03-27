@@ -245,6 +245,10 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/cloog],
   [chipcraft-git:REPOSITORIES/chipcraft-cloog/],
   [CHIPCRAFT_TOOLCHAIN_CLOOG_SRCDIR]dnl
 )
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/expat],
+  [chipcraft-git:REPOSITORIES/chipcraft-expat/],
+  [CHIPCRAFT_TOOLCHAIN_EXPAT_SRCDIR]dnl
+)
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/flex],
   [chipcraft-git:REPOSITORIES/chipcraft-flex/],
   [CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR]dnl
