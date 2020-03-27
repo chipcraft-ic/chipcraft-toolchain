@@ -1,0 +1,10 @@
+# replace <username> with your user
+# ensure you have ssh-keygen installed
+# execute:
+#  ssh-keygen -t rsa -f /home/<username>/.ssh/localhost
+
+Host chipcraft-git
+  User <username>
+  HostName localhost
+  IdentityFile /home/<username>/.ssh/localhost
+

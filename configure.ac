@@ -42,10 +42,10 @@ dnl and is set up for chipcraft-git
 AC_CHECK_FILE([${HOME}/.ssh/config],
   [
     AS_IF([test "x$(grep 'chipcraft-git' ${HOME}/.ssh/config)" = "x"],
-      [AC_MSG_ERROR([SSH configuration not set up. Create ${HOME}/.ssh/config with Host chipcraft-git pointing to location where repositories can be obtained.])]dnl
+      [AC_MSG_ERROR([SSH configuration not set up. Create ${HOME}/.ssh/config with Host chipcraft-git pointing to location where repositories can be obtained. Directory resources/misc/ contains two examples of ssh configuration entries.])]dnl
     )
   ],
-  [AC_MSG_ERROR([SSH configuration not set up. Create ${HOME}/.ssh/config with Host chipcraft-git pointing to location where repositories can be obtained.])]dnl
+  [AC_MSG_ERROR([SSH configuration not set up. Create ${HOME}/.ssh/config with Host chipcraft-git pointing to location where repositories can be obtained. Directory resources/misc/ contains two examples of ssh configuration entries.])]dnl
 )
 
 dnl get information about our buildsystem
