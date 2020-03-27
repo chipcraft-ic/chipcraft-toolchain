@@ -24,7 +24,8 @@ BOOTSTRAPROOT = $(abs_top_builddir)/bootstraproot
 # directory where finished bare metal toolchains will be installed
 OUTPUTROOT = $(abs_top_builddir)/outputroot
 
-PATH := $(LOCALROOT)/bin:$(PATH)
+BACKUP_PATH := $(PATH)
+PATH := $(LOCALROOT)/bin:$(BACKUP_PATH)
 
 # handle changes in configure.ac
 $(abs_top_srcdir)/configure: \
@@ -208,7 +209,7 @@ $(WORKDIR)/toolchain/mips/linux/.config: \
   CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)
 
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET): \
-  PATH += $(BOOTSTRAPROOT)/bin
+  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:$(BACKUP_PATH)
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET): \
   $(WORKDIR)/toolchain/mips/linux/.config \
   $(LOCALROOT)/bin/ct-ng \
@@ -228,7 +229,7 @@ $(WORKDIR)/toolchain/mips/windows/.config: \
   CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
 
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
-  PATH += $(BOOTSTRAPROOT)/bin
+  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:$(BACKUP_PATH)
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
   $(WORKDIR)/toolchain/mips/windows/.config \
   $(LOCALROOT)/bin/ct-ng \
