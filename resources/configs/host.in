@@ -142,10 +142,10 @@ CT_TARGET_LDFLAGS=""
 #
 # General toolchain options
 #
-# CT_FORCE_SYSROOT is not set
-# CT_USE_SYSROOT is not set
-# CT_SYSROOT_NAME is not set
-# CT_SYSROOT_DIR_PREFIX is not set
+CT_FORCE_SYSROOT=y
+CT_USE_SYSROOT=y
+CT_SYSROOT_NAME="sysroot"
+CT_SYSROOT_DIR_PREFIX=""
 # CT_STATIC_TOOLCHAIN is not set
 # CT_SHOW_CT_VERSION is not set
 CT_TOOLCHAIN_PKGVERSION=""
