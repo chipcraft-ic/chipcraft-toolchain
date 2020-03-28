@@ -82,7 +82,7 @@ AUTOTOOLS = \
 $(eval $(call installer,gettext,$(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR),$(AUTOTOOLS),gettext-runtime/src/gettext,))
 $(eval $(call installer,bison,$(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext,src/bison,))
 $(eval $(call installer,flex,$(CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison,src/flex,))
-$(eval $(call installer,gawk,$(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison $(LOCALROOT)/bin/flex,src/gawk,))
+$(eval $(call installer,gawk,$(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison $(LOCALROOT)/bin/flex,gawk,))
 
 TEXTTOOLS = \
   $(LOCALROOT)/bin/gettext \
@@ -105,15 +105,15 @@ $(WORKDIR)/ncurses/Makefile: \
 	  --without-debug \
 	$(EOL)
 
-$(WORKDIR)/ncurses/lib/ncurses.so \
-  $(WORKDIR)/ncurses/lib/ncurses.a: \
+$(WORKDIR)/ncurses/lib/libncurses.so \
+  $(WORKDIR)/ncurses/lib/libncurses.a: \
   $(WORKDIR)/ncurses/Makefile \
   $(EOL)
 	$(MAKE) -C '$(dir $(word 1,$^))'
 
 $(LOCALROOT)/lib/libncurses.so: \
-  $(WORKDIR)/ncurses/lib/ncurses.so \
-  $(WORKDIR)/ncurses/lib/ncurses.a \
+  $(WORKDIR)/ncurses/lib/libncurses.so \
+  $(WORKDIR)/ncurses/lib/libncurses.a \
   $(EOL)
 	$(MAKE) -C '$(WORKDIR)/ncurses' \
 	  prefix=$(LOCALROOT) \
