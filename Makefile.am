@@ -244,9 +244,9 @@ else !CHIPCRAFT_TOOLCHAIN_WINDOWS
 WINDOWS_DEPENDENCY =
 endif !CHIPCRAFT_TOOLCHAIN_WINDOWS
 
-#linux: $(LINUX_DEPENDENCY)
-#
-#windows: $(WINDOWS_DEPENDENCY)
-#
-#all: linux windows
+linux: $(LINUX_DEPENDENCY)
+
+windows: $(WINDOWS_DEPENDENCY)
+
+all: linux windows
 
