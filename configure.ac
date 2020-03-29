@@ -93,27 +93,6 @@ AC_PROG_MKDIR_P dnl check for a way to create directories
 AC_PROG_SED dnl check for sed
 AX_PROG_SSH dnl ssh is used in git urls
 
-dnl check that git supports 'git ls-remote --exit-code'
-dnl this macro used only for custom error messages
-AC_PATH_PROGS_FEATURE_CHECK([GIT],
-  [git],
-  [
-    AS_IF([ \
-        sh ${ABS_TOP_SRCDIR}/resources/scripts/git-check "${ac_path_GIT}" \
-        &> /dev/null dnl
-      ],
-      [
-        AS_VAR_SET(GIT, "${ac_path_GIT}")
-        AS_VAR_SET(ac_cv_path_GIT, "${ac_path_GIT}")
-        AS_VAR_SET(ac_path_GIT_found, :)
-      ]dnl
-    )
-  ],
-  [AC_MSG_ERROR([No version of git supporting -C or ls-remote --exit-code.])],
-  [${PATH}]dnl
-)
-AC_SUBST(GIT)
-
 dnl configure what should be built
 
 AC_ARG_ENABLE([linux-toolchain],
@@ -191,6 +170,61 @@ AS_IF([test "x${enable_windows_toolchain}" = "xyes"],
     )
   ]
 )
+
+dnl check some of required binutils exist and get their full paths
+dnl prefer triplet-prefixed bintuils
+dnl this macro used only for custom error messages
+AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR([CHIPCRAFT_TOOLCHAIN_AR_PATH],
+  [$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-ar ar]dnl
+)
+AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR([CHIPCRAFT_TOOLCHAIN_AS_PATH],
+  [$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-as as]dnl
+)
+AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR([CHIPCRAFT_TOOLCHAIN_GCC_PATH],
+  [$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-gcc gcc]dnl
+)
+AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR([CHIPCRAFT_TOOLCHAIN_GPP_PATH],
+  [$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-g++ g++]dnl
+)
+AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR([CHIPCRAFT_TOOLCHAIN_LD_PATH],
+  [$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-ld ld]dnl
+)
+AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR([CHIPCRAFT_TOOLCHAIN_NM_PATH],
+  [$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-nm nm]dnl
+)
+AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR([CHIPCRAFT_TOOLCHAIN_OBJCOPY_PATH],
+  [$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-objcopy objcopy]dnl
+)
+AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR([CHIPCRAFT_TOOLCHAIN_OBJDUMP_PATH],
+  [$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-objdump objdump]dnl
+)
+AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR([CHIPCRAFT_TOOLCHAIN_RANLIB_PATH],
+  [$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-ranlib ranlib]dnl
+)
+AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR([CHIPCRAFT_TOOLCHAIN_STRIP_PATH],
+  [$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-strip strip]dnl
+)
+
+dnl check that git supports 'git ls-remote --exit-code'
+dnl this macro used only for custom error messages
+AC_PATH_PROGS_FEATURE_CHECK([GIT],
+  [git],
+  [
+    AS_IF([ \
+        sh ${ABS_TOP_SRCDIR}/resources/scripts/git-check "${ac_path_GIT}" \
+        &> /dev/null dnl
+      ],
+      [
+        AS_VAR_SET(GIT, "${ac_path_GIT}")
+        AS_VAR_SET(ac_cv_path_GIT, "${ac_path_GIT}")
+        AS_VAR_SET(ac_path_GIT_found, :)
+      ]dnl
+    )
+  ],
+  [AC_MSG_ERROR([No version of git supporting -C or ls-remote --exit-code.])],
+  [${PATH}]dnl
+)
+AC_SUBST(GIT)
 
 dnl check whether dependencies are present in given directories
 dnl if not, initialize them from given urls
