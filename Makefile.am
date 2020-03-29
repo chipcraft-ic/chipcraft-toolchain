@@ -204,7 +204,7 @@ $(WORKDIR)/toolchain/mips/%/.config: \
 	$(MKDIR_P) $(dir $@)
 	$(SED) \
 	  " \
-	    s|!CT_OUTPUT_DIR!|$(OUTPUTROOT)|; \
+	    s|!CT_OUTPUT_DIR!|$(OUTPUTROOT)/$(CT_HOST_TRIPLET)|; \
 	    s|!CT_JOBS!|$(CHIPCRAFT_TOOLCHAIN_CPUS)|; \
 	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)|; \
 	    s|!CT_HOST_TRIPLET!|$(CT_HOST_TRIPLET)|; \
