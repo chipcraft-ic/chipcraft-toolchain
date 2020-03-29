@@ -65,20 +65,6 @@ $$(LOCALROOT)/bin/$1: \
 	  $$(EOL)
 endef
 
-# host_bintools(tool)
-# example: host_bintools(ar)
-define host_bintools
-$$(LOCALROOT)/bin/$$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-$1: \
-  $$(CHIPCRAFT_TOOLCHAIN_$$(shell echo $1 | tr '[:lower:]' '[:upper:]')_PATH) \
-  $$(EOL)
-	$$(MKDIR_P) $$(dir $$@)
-	$$(CD) $$(dir $$@) \
-	&& $$(LN_S) \
-	  $$(CHIPCRAFT_TOOLCHAIN_$$(shell echo $1 | tr '[:lower:]' '[:upper:]')_PATH) \
-	  $$(notdir $$@) \
-	$(EOL)
-endef
-
 $(eval $(call installer,m4,$(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR),,src/m4,))
 $(eval $(call installer,autoconf,$(CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR),$(LOCALROOT)/bin/m4,bin/autoconf,))
 $(eval $(call installer,automake,$(CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR),$(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf,bin/automake,))
@@ -135,38 +121,6 @@ $(LOCALROOT)/lib/libncurses.so: \
 	  $(EOL)
 
 $(eval $(call installer,ct-ng,$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR),$(AUTOTOOLS) $(TEXTTOOLS) $(LOCALROOT)/lib/libncurses.so,ct-ng,CURSES_LIBS="-L$(LOCALROOT)/lib -Wl$(COMMA)--rpath -Wl$(COMMA)$(LOCALROOT)/lib -lncurses" CURSES_CFLAGS="-I$(LOCALROOT)/include -I$(LOCALROOT)/include/ncurses"))
-
-$(eval $(call host_bintools,ar))
-$(eval $(call host_bintools,as))
-$(eval $(call host_bintools,gcc))
-$(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-g++: \
-  $(CHIPCRAFT_TOOLCHAIN_GPP_PATH) \
-  $(EOL)
-	$(MKDIR_P) $(dir $@)
-	$(CD) $(dir $@) \
-	&& $(LN_S) \
-	  $(CHIPCRAFT_TOOLCHAIN_GPP_PATH) \
-	  $(notdir $@) \
-	$(EOL)
-$(eval $(call host_bintools,ld))
-$(eval $(call host_bintools,nm))
-$(eval $(call host_bintools,objcopy))
-$(eval $(call host_bintools,objdump))
-$(eval $(call host_bintools,ranlib))
-$(eval $(call host_bintools,strip))
-
-HOST_BINTOOLS = \
-  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-ar \
-  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-as \
-  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-gcc \
-  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-g++ \
-  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-ld \
-  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-nm \
-  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-objcopy \
-  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-objdump \
-  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-ranlib \
-  $(LOCALROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)-strip \
-  $(EOL)
 
 CT_EXTRA_LDFLAGS_FOR_BUILD =
 CT_EXTRA_LDFLAGS_FOR_HOST =
@@ -232,7 +186,6 @@ $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++: \
 	$(EOL)
 
 host: \
-  $(HOST_BINTOOLS) \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++
 
@@ -272,7 +225,6 @@ $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET): \
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET): \
   $(WORKDIR)/toolchain/mips/linux/.config \
   $(LOCALROOT)/bin/ct-ng \
-  $(HOST_BINTOOLS) \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++ \
   $(EOL)
@@ -294,7 +246,6 @@ $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
   $(WORKDIR)/toolchain/mips/windows/.config \
   $(LOCALROOT)/bin/ct-ng \
-  $(HOST_BINTOOLS) \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++ \
   $(EOL)
