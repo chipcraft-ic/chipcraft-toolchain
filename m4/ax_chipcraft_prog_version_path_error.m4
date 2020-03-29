@@ -14,18 +14,18 @@ dnl AC_SUBST the OUTPUT_VARIABLE.
 dnl
 AC_DEFUN([AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR],
   [
-    m4_pushdef([TEMPORARY])
-    AC_PATH_PROGS_FEATURE_CHECK([TEMPORARY],
+    AS_VAR_SET(AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR_TEMPORARY, '')
+    AC_PATH_PROGS_FEATURE_CHECK([AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR_TEMPORARY],
       [$2],
       [
         AS_IF([ \
-            "${ac_path_TEMPORARY}" --version \
+            "${ac_path_AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR_TEMPORARY}" --version \
             &> /dev/null dnl
           ],
           [
-            AS_VAR_SET($1, "${ac_path_TEMPORARY}")
-            AS_VAR_SET(ac_cv_path_TEMPORARY, "${ac_path_TEMPORARY}")
-            AS_VAR_SET(ac_path_TEMPORARY_found, :)
+            AS_VAR_SET($1, "${ac_path_AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR_TEMPORARY}")
+            AS_VAR_SET(ac_cv_path_AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR_TEMPORARY, "${ac_path_AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR_TEMPORARY}")
+            AS_VAR_SET(ac_path_AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR_TEMPORARY_found, :)
           ]dnl
         )
       ],
@@ -33,7 +33,7 @@ AC_DEFUN([AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR],
       [${PATH}]dnl
     )
     AC_SUBST($1)
-    m4_popdef([TEMPORARY])
+    AS_UNSET(AX_CHIPCRAFT_PROG_VERSION_PATH_ERROR_TEMPORARY)
   ]
 )
 
