@@ -6,5 +6,6 @@ sudo apt-get install \
   git \
   make \
   build-essential \
+  mingw-w64 \
 ;
 
