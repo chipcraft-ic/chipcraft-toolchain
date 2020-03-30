@@ -245,7 +245,7 @@ $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++: \
   $(PREREQUISITES) \
   $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
-	&& $(word 2,$^) build \
+	&& $(LOCALROOT)/bin/ct-ng build \
 	$(EOL)
 
 host: \
@@ -292,7 +292,7 @@ $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET): \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++ \
   $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
-	&& $(word 2,$^) build \
+	&& $(LOCALROOT)/bin/ct-ng build \
 	$(EOL)
 
 LINUX_DEPENDENCY = $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)
@@ -313,7 +313,7 @@ $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++ \
   $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
-	&& $(word 2,$^) build \
+	&& $(LOCALROOT)/bin/ct-ng build \
 	$(EOL)
 
 WINDOWS_DEPENDENCY = $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
