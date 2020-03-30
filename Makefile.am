@@ -122,8 +122,6 @@ $(LOCALROOT)/lib/libncurses.so: \
 
 $(eval $(call installer,ct-ng,$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR),$(AUTOTOOLS) $(TEXTTOOLS) $(LOCALROOT)/lib/libncurses.so,ct-ng,CURSES_LIBS="-L$(LOCALROOT)/lib -Wl$(COMMA)--rpath -Wl$(COMMA)$(LOCALROOT)/lib -lncurses" CURSES_CFLAGS="-I$(LOCALROOT)/include -I$(LOCALROOT)/include/ncurses"))
 
-CT_EXTRA_LDFLAGS_FOR_BUILD =
-CT_EXTRA_LDFLAGS_FOR_HOST =
 CT_HOST_TRIPLET =
 
 # keep in sync with configure.ac
