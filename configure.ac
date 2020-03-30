@@ -341,7 +341,7 @@ dnl )
 dnl AC_SUBST(CHIPCRAFT_TOOLCHAIN_RISCV_NEWLIB_SRCDIR)
 
 dnl check whether our patched crosstool-ng is present
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/chipcraft-crosstool-ng],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/ct-ng],
   [chipcraft-git:REPOSITORIES/chipcraft-crosstool-ng/],
   [CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR]dnl
 )
