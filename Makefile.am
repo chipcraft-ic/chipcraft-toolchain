@@ -44,9 +44,10 @@ $$(WORKDIR)/$$(notdir $$(basename $1))/Makefile: \
   $$(EOL)
 	$$(MKDIR_P) '$$(WORKDIR)/$$(notdir $$(basename $1))'
 	$$(CD) '$$(WORKDIR)/$$(notdir $$(basename $1))' \
-	&& $$(word 1,$$^) \
+	&& \
 	  CPPFLAGS="-I$$(LOCALROOT)/include -I$$(LOCALROOT)/include/ncurses" \
 	  LDFLAGS="-L$$(LOCALROOT)/lib" \
+	  $$(word 1,$$^) \
 	  --prefix $$(LOCALROOT) \
 	  $5 \
 	$$(EOL)
