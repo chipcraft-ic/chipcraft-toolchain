@@ -38,89 +38,153 @@ $(abs_top_srcdir)/configure: \
 
 # installer(package, srcdir, prerequisites, build_check_file, configure_flags)
 define installer
-$$(WORKDIR)/$1/Makefile: \
+$$(WORKDIR)/$$(notdir $$(basename $1))/Makefile: \
   $2/configure \
   $3 \
   $$(EOL)
-	$$(MKDIR_P) '$$(WORKDIR)/$1'
-	$$(CD) '$$(WORKDIR)/$1' \
+	$$(MKDIR_P) '$$(WORKDIR)/$$(notdir $$(basename $1))'
+	$$(CD) '$$(WORKDIR)/$$(notdir $$(basename $1))' \
 	&& $$(word 1,$$^) \
 	  --prefix $$(LOCALROOT) \
 	  $5 \
 	$$(EOL)
 
-$$(WORKDIR)/$1/$4: \
-  $$(WORKDIR)/$1/Makefile \
+$$(WORKDIR)/$$(notdir $$(basename $1))/$4: \
+  $$(WORKDIR)/$$(notdir $$(basename $1))/Makefile \
   $$(EOL)
-	$$(MAKE) -C '$$(WORKDIR)/$1' \
+	$$(MAKE) -C '$$(WORKDIR)/$$(notdir $$(basename $1))' \
 	CPPFLAGS+="-I$$(LOCALROOT)/include -I$$(LOCALROOT)/include/ncurses" \
+	LDFLAGS+="-L$$(LOCALROOT)/lib" \
 	$$(EOL)
 
-$$(LOCALROOT)/bin/$1: \
-  $$(WORKDIR)/$1/$4 \
+$$(LOCALROOT)/$1: \
+  $$(WORKDIR)/$$(notdir $$(basename $1))/$4 \
   $$(EOL)
-	$$(MAKE) -C '$$(WORKDIR)/$1' \
+	$$(MAKE) -C '$$(WORKDIR)/$$(notdir $$(basename $1))' \
 	  prefix=$$(LOCALROOT) \
 	  install \
 	  $$(EOL)
 endef
 
-$(eval $(call installer,m4,$(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR),,src/m4,))
-$(eval $(call installer,autoconf,$(CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR),$(LOCALROOT)/bin/m4,bin/autoconf,))
-$(eval $(call installer,automake,$(CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR),$(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf,bin/automake,))
-$(eval $(call installer,libtool,$(CHIPCRAFT_TOOLCHAIN_LIBTOOL_SRCDIR),$(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf $(LOCALROOT)/bin/automake,libtool,))
-$(eval $(call installer,make,$(CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR),$(LOCALROOT)/bin/m4 $(LOCALROOT)/bin/autoconf $(LOCALROOT)/bin/automake $(LOCALROOT)/bin/libtool,make,))
-
-AUTOTOOLS = \
+$(eval $(call installer,bin/m4,$(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR),,src/m4,))
+$(eval $(call installer,bin/autoconf,$(CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+,bin/autoconf,))
+$(eval $(call installer,bin/automake,$(CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+,bin/automake,))
+$(eval $(call installer,bin/libtool,$(CHIPCRAFT_TOOLCHAIN_LIBTOOL_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+,libtool,))
+$(eval $(call installer,bin/make,$(CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool \
+,make,))
+$(eval $(call installer,lib/libz.so,$(CHIPCRAFT_TOOLCHAIN_ZLIB_SRCDIR), \
   $(LOCALROOT)/bin/m4 \
   $(LOCALROOT)/bin/autoconf \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/make \
-  $(EOL)
-
-$(eval $(call installer,gettext,$(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR),$(AUTOTOOLS),gettext-runtime/src/gettext,))
-$(eval $(call installer,bison,$(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext,src/bison,))
-$(eval $(call installer,flex,$(CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison,src/flex,))
-$(eval $(call installer,gawk,$(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR),$(AUTOTOOLS) $(LOCALROOT)/bin/gettext $(LOCALROOT)/bin/bison $(LOCALROOT)/bin/flex,gawk,))
-
-TEXTTOOLS = \
+,libz.so,))
+$(eval $(call installer,bin/git,$(CHIPCRAFT_TOOLCHAIN_GIT_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/make \
+  $(LOCALROOT)/lib/libz.so \
+,git,))
+$(eval $(call installer,bin/gettext,$(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/make \
+  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/bin/libtool \
+,gettext-runtime/src/gettext,))
+$(eval $(call installer,bin/bison,$(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/make \
+  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/gettext \
+,src/bison,))
+$(eval $(call installer,bin/flex,$(CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/make \
+  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/gettext \
+  $(LOCALROOT)/bin/bison \
+,src/flex,))
+$(eval $(call installer,bin/gawk,$(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/make \
+  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/gettext \
+  $(LOCALROOT)/bin/bison \
+  $(LOCALROOT)/bin/flex \
+,gawk,))
+$(eval $(call installer,lib/libncurses.so,$(CHIPCRAFT_TOOLCHAIN_NCURSES_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/make \
+  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/gettext \
   $(LOCALROOT)/bin/bison \
   $(LOCALROOT)/bin/flex \
   $(LOCALROOT)/bin/gawk \
-  $(EOL)
+,lib/libncurses.so,--with-shared --without-debug))
+$(eval $(call installer,bin/ct-ng,$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR), \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/make \
+  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/gettext \
+  $(LOCALROOT)/bin/bison \
+  $(LOCALROOT)/bin/flex \
+  $(LOCALROOT)/bin/gawk \
+  $(LOCALROOT)/lib/libncurses.so \
+,ct-ng,CURSES_LIBS="-L$(LOCALROOT)/lib -Wl$(COMMA)--rpath -Wl$(COMMA)$(LOCALROOT)/lib -lncurses" CURSES_CFLAGS="-I$(LOCALROOT)/include -I$(LOCALROOT)/include/ncurses"))
 
-# install ncurses
-$(WORKDIR)/ncurses/Makefile: \
-  $(CHIPCRAFT_TOOLCHAIN_NCURSES_SRCDIR)/configure \
-  $(AUTOTOOLS) \
-  $(TEXTTOOLS) \
+PREREQUISITES := \
+  $(LOCALROOT)/bin/m4 \
+  $(LOCALROOT)/bin/autoconf \
+  $(LOCALROOT)/bin/automake \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/make \
+  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/bin/libtool \
+  $(LOCALROOT)/bin/gettext \
+  $(LOCALROOT)/bin/bison \
+  $(LOCALROOT)/bin/flex \
+  $(LOCALROOT)/bin/gawk \
+  $(LOCALROOT)/lib/libncurses.so \
+  $(LOCALROOT)/bin/ct-ng \
   $(EOL)
-	$(MKDIR_P) '$(dir $@)'
-	$(CD) '$(dir $@)' \
-	&& $(word 1,$^) \
-	  --prefix $(LOCALROOT) \
-	  --with-shared \
-	  --without-debug \
-	$(EOL)
-
-$(WORKDIR)/ncurses/lib/libncurses.so \
-  $(WORKDIR)/ncurses/lib/libncurses.a: \
-  $(WORKDIR)/ncurses/Makefile \
-  $(EOL)
-	$(MAKE) -C '$(dir $(word 1,$^))'
-
-$(LOCALROOT)/lib/libncurses.so: \
-  $(WORKDIR)/ncurses/lib/libncurses.so \
-  $(WORKDIR)/ncurses/lib/libncurses.a \
-  $(EOL)
-	$(MAKE) -C '$(WORKDIR)/ncurses' \
-	  prefix=$(LOCALROOT) \
-	  install \
-	  $(EOL)
-
-$(eval $(call installer,ct-ng,$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR),$(AUTOTOOLS) $(TEXTTOOLS) $(LOCALROOT)/lib/libncurses.so,ct-ng,CURSES_LIBS="-L$(LOCALROOT)/lib -Wl$(COMMA)--rpath -Wl$(COMMA)$(LOCALROOT)/lib -lncurses" CURSES_CFLAGS="-I$(LOCALROOT)/include -I$(LOCALROOT)/include/ncurses"))
 
 CT_HOST_TRIPLET =
 
@@ -177,7 +241,7 @@ $(WORKDIR)/toolchain/host/.config: \
 $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
 $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++: \
   $(WORKDIR)/toolchain/host/.config \
-  $(LOCALROOT)/bin/ct-ng \
+  $(PREREQUISITES) \
   $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(word 2,$^) build \
@@ -222,7 +286,7 @@ $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET): \
   PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:$(BACKUP_PATH)
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET): \
   $(WORKDIR)/toolchain/mips/linux/.config \
-  $(LOCALROOT)/bin/ct-ng \
+  $(PREREQUISITES) \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++ \
   $(EOL)
@@ -243,7 +307,7 @@ $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
   PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:$(BACKUP_PATH)
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
   $(WORKDIR)/toolchain/mips/windows/.config \
-  $(LOCALROOT)/bin/ct-ng \
+  $(PREREQUISITES) \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
   $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++ \
   $(EOL)

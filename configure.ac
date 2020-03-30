@@ -179,13 +179,13 @@ AS_IF([test "x${enable_windows_toolchain}" = "xyes"],
   ]
 )
 
-dnl check that git supports 'git ls-remote --exit-code'
+dnl check that any git exists
 dnl this macro used only for custom error messages
 AC_PATH_PROGS_FEATURE_CHECK([GIT],
   [git],
   [
     AS_IF([ \
-        sh ${ABS_TOP_SRCDIR}/resources/scripts/git-check "${ac_path_GIT}" \
+        "${ac_path_GIT}" --version \
         &> /dev/null dnl
       ],
       [
@@ -195,10 +195,18 @@ AC_PATH_PROGS_FEATURE_CHECK([GIT],
       ]dnl
     )
   ],
-  [AC_MSG_ERROR([No version of git supporting -C or ls-remote --exit-code.])],
+  [AC_MSG_ERROR([No version of git found.])],
   [${PATH}]dnl
 )
 AC_SUBST(GIT)
+
+AC_ARG_WITH(components-path,
+  AS_HELP_STRING(--with-components-path=DIR,
+    [Path to directory containing buildsystem components.]dnl
+  ),
+  [AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR, "${withval}")],
+  [AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR, "${ABS_TOP_BUILDDIR}/components")]dnl
+)
 
 dnl check whether dependencies are present in given directories
 dnl if not, initialize them from given urls
@@ -208,28 +216,32 @@ dnl         [<git repo to clone>]
 dnl       )
 
 dnl first, check core buildsystem components
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/m4],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/m4],
   [chipcraft-git:REPOSITORIES/chipcraft-m4/],
   [CHIPCRAFT_TOOLCHAIN_M4_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/autoconf],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/autoconf],
   [chipcraft-git:REPOSITORIES/chipcraft-autoconf/],
   [CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/automake],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/automake],
   [chipcraft-git:REPOSITORIES/chipcraft-automake/],
   [CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/libtool],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/libtool],
   [chipcraft-git:REPOSITORIES/chipcraft-libtool/],
   [CHIPCRAFT_TOOLCHAIN_LIBTOOL_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/make],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/make],
   [chipcraft-git:REPOSITORIES/chipcraft-make/],
   [CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR]dnl
 )
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/git],
+  [chipcraft-git:REPOSITORIES/chipcraft-git/],
+  [CHIPCRAFT_TOOLCHAIN_GIT_SRCDIR]dnl
+)
 dnl next, check build toolchain components
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/linux],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/linux],
   [chipcraft-git:REPOSITORIES/chipcraft-linux/],
   [CHIPCRAFT_TOOLCHAIN_LINUX_SRCDIR]dnl
 )
@@ -237,35 +249,35 @@ AS_VAR_SET_IF(GIT,
   [${GIT} -C ${ABS_TOP_BUILDDIR}/components/linux checkout v${CHIPCRAFT_TOOLCHAIN_KERNEL}],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/binutils],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-binutils-gdb/],
   [CHIPCRAFT_TOOLCHAIN_BINUTILS_SRCDIR]dnl
 )
 AS_VAR_SET_IF(GIT,
-  [${GIT} -C ${ABS_TOP_BUILDDIR}/components/binutils checkout chipcraft-binutils-2.34],
+  [${GIT} -C ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils checkout chipcraft-binutils-2.34],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/bison],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/bison],
   [chipcraft-git:REPOSITORIES/chipcraft-bison/],
   [CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/cloog],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/cloog],
   [chipcraft-git:REPOSITORIES/chipcraft-cloog/],
   [CHIPCRAFT_TOOLCHAIN_CLOOG_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/expat],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/expat],
   [chipcraft-git:REPOSITORIES/chipcraft-expat/],
   [CHIPCRAFT_TOOLCHAIN_EXPAT_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/flex],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/flex],
   [chipcraft-git:REPOSITORIES/chipcraft-flex/],
   [CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/gawk],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gawk],
   [chipcraft-git:REPOSITORIES/chipcraft-gawk/],
   [CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/gcc],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gcc],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-gcc/],
   [CHIPCRAFT_TOOLCHAIN_GCC_SRCDIR]dnl
 )
@@ -273,75 +285,72 @@ AS_VAR_SET_IF(GIT,
   [${GIT} -C ${ABS_TOP_BUILDDIR}/components/gcc checkout chipcraft-gcc-9.3],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/gettext],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gettext],
   [chipcraft-git:REPOSITORIES/chipcraft-gettext/],
   [CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/glibc],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/glibc],
   [chipcraft-git:REPOSITORIES/chipcraft-glibc/],
   [CHIPCRAFT_TOOLCHAIN_GLIBC_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/gmp],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gmp],
   [chipcraft-git:REPOSITORIES/chipcraft-gmp/],
   [CHIPCRAFT_TOOLCHAIN_GMP_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/isl],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/isl],
   [chipcraft-git:REPOSITORIES/chipcraft-isl/],
   [CHIPCRAFT_TOOLCHAIN_ISL_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/libiconv],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/libiconv],
   [chipcraft-git:REPOSITORIES/chipcraft-libiconv/],
   [CHIPCRAFT_TOOLCHAIN_LIBICONV_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mpc],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mpc],
   [chipcraft-git:REPOSITORIES/chipcraft-mpc/],
   [CHIPCRAFT_TOOLCHAIN_MPC_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mpfr],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mpfr],
   [chipcraft-git:REPOSITORIES/chipcraft-mpfr/],
   [CHIPCRAFT_TOOLCHAIN_MPFR_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/ncurses],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/ncurses],
   [chipcraft-git:REPOSITORIES/chipcraft-ncurses/],
   [CHIPCRAFT_TOOLCHAIN_NCURSES_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/zlib],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/zlib],
   [chipcraft-git:REPOSITORIES/chipcraft-zlib/],
   [CHIPCRAFT_TOOLCHAIN_ZLIB_SRCDIR]dnl
 )
 
 dnl check final toolchain components
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-binutils-gdb],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mips-binutils-gdb],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-binutils-gdb/],
   [CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_GDB_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-gcc],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mips-gcc],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-gcc/],
   [CHIPCRAFT_TOOLCHAIN_MIPS_GCC_SRCDIR]dnl
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/mips-newlib],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mips-newlib],
   [chipcraft-git:REPOSITORIES/chipcraft-mips-newlib/],
   [CHIPCRAFT_TOOLCHAIN_MIPS_NEWLIB_SRCDIR]dnl
 )
 dnl TODO: future RISC-V extensions
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-binutils-gdb],
+dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}iscv-binutils-gdb],
 dnl   [chipcraft-git:REPOSITORIES/chipcraft-riscv-binutils-gdb/],
 dnl   [CHIPCRAFT_TOOLCHAIN_RISCV_BINUTILS_GDB_SRCDIR]dnl
 dnl )
-dnl AC_SUBST(CHIPCRAFT_TOOLCHAIN_RISCV_BINUTILS_GDB_SRCDIR)
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-gcc],
+dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}iscv-gcc],
 dnl   [chipcraft-git:REPOSITORIES/chipcraft-riscv-gcc/],
 dnl   [CHIPCRAFT_TOOLCHAIN_RISCV_GCC_SRCDIR]dnl
 dnl )
-dnl AC_SUBST(CHIPCRAFT_TOOLCHAIN_RISCV_GCC_SRCDIR)
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_SRCDIR}/components/riscv-newlib],
+dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}iscv-newlib],
 dnl   [chipcraft-git:REPOSITORIES/chipcraft-riscv-newlib/],
 dnl   [CHIPCRAFT_TOOLCHAIN_RISCV_NEWLIB_SRCDIR]dnl
 dnl )
-dnl AC_SUBST(CHIPCRAFT_TOOLCHAIN_RISCV_NEWLIB_SRCDIR)
 
 dnl check whether our patched crosstool-ng is present
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${ABS_TOP_BUILDDIR}/components/ct-ng],
+AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/ct-ng],
   [chipcraft-git:REPOSITORIES/chipcraft-crosstool-ng/],
   [CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR]dnl
 )
