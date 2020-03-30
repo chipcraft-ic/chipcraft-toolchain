@@ -45,6 +45,8 @@ $$(WORKDIR)/$$(notdir $$(basename $1))/Makefile: \
 	$$(MKDIR_P) '$$(WORKDIR)/$$(notdir $$(basename $1))'
 	$$(CD) '$$(WORKDIR)/$$(notdir $$(basename $1))' \
 	&& $$(word 1,$$^) \
+	  CPPFLAGS="-I$$(LOCALROOT)/include -I$$(LOCALROOT)/include/ncurses" \
+	  LDFLAGS="-L$$(LOCALROOT)/lib" \
 	  --prefix $$(LOCALROOT) \
 	  $5 \
 	$$(EOL)
@@ -53,8 +55,6 @@ $$(WORKDIR)/$$(notdir $$(basename $1))/$4: \
   $$(WORKDIR)/$$(notdir $$(basename $1))/Makefile \
   $$(EOL)
 	$$(MAKE) -C '$$(WORKDIR)/$$(notdir $$(basename $1))' \
-	CPPFLAGS+="-I$$(LOCALROOT)/include -I$$(LOCALROOT)/include/ncurses" \
-	LDFLAGS+="-L$$(LOCALROOT)/lib" \
 	$$(EOL)
 
 $$(LOCALROOT)/$1: \
