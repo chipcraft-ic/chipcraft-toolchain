@@ -50,10 +50,10 @@ AC_CHECK_FILE([${HOME}/.ssh/config],
 
 dnl get information about our buildsystem
 AC_CANONICAL_BUILD
-AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET,
+AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET,
   "${build_cpu}-chipcraft-linux-gnu"dnl
 )
-AC_SUBST(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)
+AC_SUBST(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 dnl is cpu 64-bit or 32-bit?
 AS_CASE(${build_cpu},
   [x86_64],
@@ -96,10 +96,69 @@ dnl dependency checks
 
 AX_CHECK_GNU_MAKE([], AC_MSG_ERROR([GNU Make is required to build project.]))
 AC_PROG_CC dnl we need a compiler
+AC_PROG_INSTALL dnl we need an installer
 AC_PROG_LN_S dnl check for a way to create links
 AC_PROG_MKDIR_P dnl check for a way to create directories
 AC_PROG_SED dnl check for sed
 AX_PROG_SSH dnl ssh is used in git urls
+
+dnl check that any git exists
+dnl this macro used only for custom error messages
+AC_PATH_PROGS_FEATURE_CHECK([GIT],
+  [git],
+  [
+    AS_IF([ \
+        "${ac_path_GIT}" --version \
+        &> /dev/null dnl
+      ],
+      [
+        AS_VAR_SET(GIT, "${ac_path_GIT}")
+        AS_VAR_SET(ac_cv_path_GIT, "${ac_path_GIT}")
+        AS_VAR_SET(ac_path_GIT_found, :)
+      ]dnl
+    )
+  ],
+  [AC_MSG_ERROR([No version of git found.])],
+  [${PATH}]dnl
+)
+AC_SUBST(GIT)
+
+AC_ARG_WITH(components-path,
+  AS_HELP_STRING(--with-components-path=DIR,
+    [Path to directory containing buildsystem components. Defaults to './components'.]dnl
+  ),
+  [AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR, "${withval}")],
+  [AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR, "${ABS_TOP_BUILDDIR}/components")]dnl
+)
+
+dnl check that any tar exists
+dnl this macro used only for custom error messages
+AC_PATH_PROGS_FEATURE_CHECK([TAR],
+  [tar],
+  [
+    AS_IF([ \
+        "${ac_path_TAR}" --version \
+        &> /dev/null dnl
+      ],
+      [
+        AS_VAR_SET(TAR, "${ac_path_TAR}")
+        AS_VAR_SET(ac_cv_path_TAR, "${ac_path_TAR}")
+        AS_VAR_SET(ac_path_TAR_found, :)
+      ]dnl
+    )
+  ],
+  [AC_MSG_ERROR([No version of tar found.])],
+  [${PATH}]dnl
+)
+AC_SUBST(TAR)
+
+AC_ARG_WITH(components-path,
+  AS_HELP_STRING(--with-components-path=DIR,
+    [Path to directory containing buildsystem components. Defaults to './components'.]dnl
+  ),
+  [AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR, "${withval}")],
+  [AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR, "${ABS_TOP_BUILDDIR}/components")]dnl
+)
 
 dnl configure what should be built
 
@@ -179,35 +238,6 @@ AS_IF([test "x${enable_windows_toolchain}" = "xyes"],
   ]
 )
 
-dnl check that any git exists
-dnl this macro used only for custom error messages
-AC_PATH_PROGS_FEATURE_CHECK([GIT],
-  [git],
-  [
-    AS_IF([ \
-        "${ac_path_GIT}" --version \
-        &> /dev/null dnl
-      ],
-      [
-        AS_VAR_SET(GIT, "${ac_path_GIT}")
-        AS_VAR_SET(ac_cv_path_GIT, "${ac_path_GIT}")
-        AS_VAR_SET(ac_path_GIT_found, :)
-      ]dnl
-    )
-  ],
-  [AC_MSG_ERROR([No version of git found.])],
-  [${PATH}]dnl
-)
-AC_SUBST(GIT)
-
-AC_ARG_WITH(components-path,
-  AS_HELP_STRING(--with-components-path=DIR,
-    [Path to directory containing buildsystem components.]dnl
-  ),
-  [AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR, "${withval}")],
-  [AS_VAR_SET(CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR, "${ABS_TOP_BUILDDIR}/components")]dnl
-)
-
 dnl check whether dependencies are present in given directories
 dnl if not, initialize them from given urls
 dnl TODO: change locations from /home/... to github
@@ -246,7 +276,7 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/linux],
   [CHIPCRAFT_TOOLCHAIN_LINUX_SRCDIR]dnl
 )
 AS_VAR_SET_IF(GIT,
-  [${GIT} -C ${ABS_TOP_BUILDDIR}/components/linux checkout v${CHIPCRAFT_TOOLCHAIN_KERNEL}],
+  [${GIT} -C ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/linux checkout v${CHIPCRAFT_TOOLCHAIN_KERNEL}],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils],
@@ -282,7 +312,7 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gcc],
   [CHIPCRAFT_TOOLCHAIN_GCC_SRCDIR]dnl
 )
 AS_VAR_SET_IF(GIT,
-  [${GIT} -C ${ABS_TOP_BUILDDIR}/components/gcc checkout chipcraft-gcc-9.3],
+  [${GIT} -C ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gcc checkout chipcraft-gcc-9.3],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gettext],

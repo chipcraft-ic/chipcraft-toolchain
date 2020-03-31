@@ -7,6 +7,7 @@ CD = cd
 IS_DIR = test -d
 # end of line for ease of use in multiline definitions
 MAKE = make
+RM_RF = rm -rf
 
 EXTRA_DIST = \
   bootstrap \
@@ -23,18 +24,6 @@ LOCALROOT = $(abs_top_builddir)/localroot
 BOOTSTRAPROOT = $(abs_top_builddir)/bootstraproot
 # directory where finished bare metal toolchains will be installed
 OUTPUTROOT = $(abs_top_builddir)/outputroot
-
-BACKUP_PATH := $(PATH)
-PATH := $(LOCALROOT)/bin:$(BACKUP_PATH)
-
-# handle changes in configure.ac
-$(abs_top_srcdir)/configure: \
-  $(abs_top_srcdir)/configure.ac \
-  $(abs_top_srcdir)/aclocal.m4 \
-  $(EOL)
-	$(CD) '$(abs_top_srcdir)' \
-	&& autoconf -I m4 \
-	$(EOL)
 
 # installer(package, srcdir, prerequisites, build_check_file, configure_flags)
 define installer
@@ -57,6 +46,10 @@ $$(WORKDIR)/$$(notdir $$(basename $1))/$4: \
   $$(EOL)
 	$$(MAKE) -C '$$(WORKDIR)/$$(notdir $$(basename $1))' \
 	$$(EOL)
+
+$$(LOCALROOT)/$1: \
+  PATH := $$(LOCALROOT)/bin:$$(PATH) \
+  $(EOL)
 
 $$(LOCALROOT)/$1: \
   $$(WORKDIR)/$$(notdir $$(basename $1))/$4 \
@@ -86,20 +79,20 @@ $(eval $(call installer,bin/make,$(CHIPCRAFT_TOOLCHAIN_MAKE_SRCDIR), \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
 ,make,))
-$(eval $(call installer,lib/libz.so,$(CHIPCRAFT_TOOLCHAIN_ZLIB_SRCDIR), \
+$(eval $(call installer,lib/libz.a,$(CHIPCRAFT_TOOLCHAIN_ZLIB_SRCDIR), \
   $(LOCALROOT)/bin/m4 \
   $(LOCALROOT)/bin/autoconf \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/make \
-,libz.so,))
+,libz.a,))
 $(eval $(call installer,bin/git,$(CHIPCRAFT_TOOLCHAIN_GIT_SRCDIR), \
   $(LOCALROOT)/bin/m4 \
   $(LOCALROOT)/bin/autoconf \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/make \
-  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/lib/libz.a \
 ,git,))
 $(eval $(call installer,bin/gettext,$(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR), \
   $(LOCALROOT)/bin/m4 \
@@ -107,7 +100,7 @@ $(eval $(call installer,bin/gettext,$(CHIPCRAFT_TOOLCHAIN_GETTEXT_SRCDIR), \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/make \
-  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/lib/libz.a \
   $(LOCALROOT)/bin/libtool \
 ,gettext-runtime/src/gettext,))
 $(eval $(call installer,bin/bison,$(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR), \
@@ -116,7 +109,7 @@ $(eval $(call installer,bin/bison,$(CHIPCRAFT_TOOLCHAIN_BISON_SRCDIR), \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/make \
-  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/lib/libz.a \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/gettext \
 ,src/bison,))
@@ -126,7 +119,7 @@ $(eval $(call installer,bin/flex,$(CHIPCRAFT_TOOLCHAIN_FLEX_SRCDIR), \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/make \
-  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/lib/libz.a \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/gettext \
   $(LOCALROOT)/bin/bison \
@@ -137,38 +130,38 @@ $(eval $(call installer,bin/gawk,$(CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR), \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/make \
-  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/lib/libz.a \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/gettext \
   $(LOCALROOT)/bin/bison \
   $(LOCALROOT)/bin/flex \
 ,gawk,))
-$(eval $(call installer,lib/libncurses.so,$(CHIPCRAFT_TOOLCHAIN_NCURSES_SRCDIR), \
+$(eval $(call installer,lib/libncurses.a,$(CHIPCRAFT_TOOLCHAIN_NCURSES_SRCDIR), \
   $(LOCALROOT)/bin/m4 \
   $(LOCALROOT)/bin/autoconf \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/make \
-  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/lib/libz.a \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/gettext \
   $(LOCALROOT)/bin/bison \
   $(LOCALROOT)/bin/flex \
   $(LOCALROOT)/bin/gawk \
-,lib/libncurses.so,--with-shared --without-debug))
+,lib/libncurses.a,--with-shared --without-debug))
 $(eval $(call installer,bin/ct-ng,$(CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR), \
   $(LOCALROOT)/bin/m4 \
   $(LOCALROOT)/bin/autoconf \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/make \
-  $(LOCALROOT)/lib/libz.so \
+  $(LOCALROOT)/lib/libz.a \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/gettext \
   $(LOCALROOT)/bin/bison \
   $(LOCALROOT)/bin/flex \
   $(LOCALROOT)/bin/gawk \
-  $(LOCALROOT)/lib/libncurses.so \
+  $(LOCALROOT)/lib/libncurses.a \
 ,ct-ng,CURSES_LIBS="-L$(LOCALROOT)/lib -Wl$(COMMA)--rpath -Wl$(COMMA)$(LOCALROOT)/lib -lncurses" CURSES_CFLAGS="-I$(LOCALROOT)/include -I$(LOCALROOT)/include/ncurses"))
 
 PREREQUISITES := \
@@ -177,20 +170,20 @@ PREREQUISITES := \
   $(LOCALROOT)/bin/automake \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/make \
-  $(LOCALROOT)/lib/libz.so \
   $(LOCALROOT)/bin/libtool \
   $(LOCALROOT)/bin/gettext \
   $(LOCALROOT)/bin/bison \
   $(LOCALROOT)/bin/flex \
   $(LOCALROOT)/bin/gawk \
-  $(LOCALROOT)/lib/libncurses.so \
   $(LOCALROOT)/bin/ct-ng \
+  $(LOCALROOT)/lib/libz.a \
+  $(LOCALROOT)/lib/libncurses.a \
   $(EOL)
 
 CT_HOST_TRIPLET =
 
 # keep in sync with configure.ac
-SED_SRCDIR_SUBSTITUTIONS = \
+SED_SRCDIR_SUBSTITUTIONS := \
   s|!CT_M4_URL!|$(CHIPCRAFT_TOOLCHAIN_M4_SRCDIR)|; \
   s|!CT_AUTOCONF_URL!|$(CHIPCRAFT_TOOLCHAIN_AUTOCONF_SRCDIR)|; \
   s|!CT_AUTOMAKE_URL!|$(CHIPCRAFT_TOOLCHAIN_AUTOMAKE_SRCDIR)|; \
@@ -222,14 +215,14 @@ SED_SRCDIR_SUBSTITUTIONS = \
 $(WORKDIR)/toolchain/host/.config: \
   $(abs_top_srcdir)/resources/configs/host.in \
   $(EOL)
-	$(MKDIR_P) $(dir $@)
+	$(MKDIR_P)$ '$(@D)'
 	$(SED) \
 	  " \
 	    s|!CT_LOCALROOT!|$(LOCALROOT)|; \
 	    s|!CT_OUTPUT_DIR!|$(BOOTSTRAPROOT)|; \
 	    s|!CT_JOBS!|$(CHIPCRAFT_TOOLCHAIN_CPUS)|; \
 	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)|; \
-	    s|!CT_HOST_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)|; \
+	    s|!CT_HOST_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)|; \
 	    s|!CT_BITNESS!|$(CHIPCRAFT_TOOLCHAIN_BITNESS)|; \
 	    s|!CT_KERNEL_VERSION!|$(CHIPCRAFT_TOOLCHAIN_KERNEL)|; \
 	    s|!CT_KERNEL_MAJOR!|$(CHIPCRAFT_TOOLCHAIN_KERNEL_MAJOR)|; \
@@ -239,8 +232,22 @@ $(WORKDIR)/toolchain/host/.config: \
 	$(word 1,$^) > $@ \
 	$(EOL)
 
-$(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
-$(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++: \
+BOOTSTRAP := \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-ar \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-as \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-g++ \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-gcc \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-ld \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-nm \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-objcopy \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-objdump \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-ranlib \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-readelf \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-strings \
+  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-strip \
+  $(EOL)
+
+$(BOOTSTRAP): \
   $(WORKDIR)/toolchain/host/.config \
   $(PREREQUISITES) \
   $(EOL)
@@ -248,28 +255,24 @@ $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++: \
 	&& $(LOCALROOT)/bin/ct-ng build \
 	$(EOL)
 
-host: \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++
-
 CT_EXTRA_CFLAGS_FOR_BUILD =
 CT_EXTRA_LDFLAGS_FOR_BUILD = \
   -Wl,--rpath \
-  -Wl,$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)/sysroot/$(CHIPCRAFT_TOOLCHAIN_LIBDIR) \
+  -Wl,$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/sysroot/$(CHIPCRAFT_TOOLCHAIN_LIBDIR) \
   -Wl,--rpath \
-  -Wl,$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)/sysroot/usr/$(CHIPCRAFT_TOOLCHAIN_LIBDIR) \
-  -Wl,--dynamic-linker=$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)/sysroot/$(CHIPCRAFT_TOOLCHAIN_LIBDIR)/ld-2.23.so
+  -Wl,$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/sysroot/usr/$(CHIPCRAFT_TOOLCHAIN_LIBDIR) \
+  -Wl,--dynamic-linker=$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/sysroot/$(CHIPCRAFT_TOOLCHAIN_LIBDIR)/ld-2.23.so
   $(EOL)
 
 $(WORKDIR)/toolchain/mips/%/.config: \
   $(abs_top_srcdir)/resources/configs/mips.in \
   $(EOL)
-	$(MKDIR_P) $(dir $@)
+	$(MKDIR_P) '$(@D)'
 	$(SED) \
 	  " \
 	    s|!CT_OUTPUT_DIR!|$(OUTPUTROOT)/$(CT_HOST_TRIPLET)|; \
 	    s|!CT_JOBS!|$(CHIPCRAFT_TOOLCHAIN_CPUS)|; \
-	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)|; \
+	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)|; \
 	    s|!CT_HOST_TRIPLET!|$(CT_HOST_TRIPLET)|; \
 	    s|!CT_EXTRA_CFLAGS_FOR_BUILD!|$(CT_EXTRA_CFLAGS_FOR_BUILD)|; \
 	    s|!CT_EXTRA_LDFLAGS_FOR_BUILD!|$(CT_EXTRA_LDFLAGS_FOR_BUILD)|; \
@@ -281,49 +284,133 @@ $(WORKDIR)/toolchain/mips/%/.config: \
 if CHIPCRAFT_TOOLCHAIN_LINUX
 # one variable assignment per rule!
 $(WORKDIR)/toolchain/mips/linux/.config: \
-  CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)
+  CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET): \
-  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:$(BACKUP_PATH)
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET): \
+$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc: \
+  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:$(PATH)
+$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc: \
   $(WORKDIR)/toolchain/mips/linux/.config \
   $(PREREQUISITES) \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++ \
+  $(BOOTSTRAP) \
   $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(LOCALROOT)/bin/ct-ng build \
 	$(EOL)
 
-LINUX_DEPENDENCY = $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET)
+LINUX_DEPENDENCY := \
+  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc \
+  $(EOL)
+
+pack-linux: $(LINUX_DEPENDENCY)
+	$(TAR) \
+	  -H pax \
+	  -z \
+	  -c \
+	  -C $(OUTPUTROOT) \
+	  -f $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET).tar.gz \
+	  $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
+
+install-data-local-linux: $(LINUX_DEPENDENCY)
+	$(INSTALL) \
+	  -t $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) \
+	  $(shell find $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) ! -type d)
+
+uninstall-local-linux:
+	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
+
 else !CHIPCRAFT_TOOLCHAIN_LINUX
 LINUX_DEPENDENCY =
+
+pack-linux:
+
+install-data-local-linux:
+
+uninstall-local-linux:
+
 endif !CHIPCRAFT_TOOLCHAIN_LINUX
 
 if CHIPCRAFT_TOOLCHAIN_WINDOWS
 $(WORKDIR)/toolchain/mips/windows/.config: \
   CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
 
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
-  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:$(BACKUP_PATH)
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
+$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/mips-cc-elf-gcc.exe: \
+  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:$(PATH)
+$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/mips-cc-elf-gcc.exe: \
   $(WORKDIR)/toolchain/mips/windows/.config \
   $(PREREQUISITES) \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-gcc \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BUILDSYSTEM_TRIPLET)-g++ \
+  $(BOOTSTRAP) \
   $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(LOCALROOT)/bin/ct-ng build \
 	$(EOL)
 
-WINDOWS_DEPENDENCY = $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
+WINDOWS_DEPENDENCY := \
+  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/mips-cc-elf-gcc.exe \
+  $(EOL)
+
+pack-windows: $(WINDOWS_DEPENDENCY)
+	$(TAR) \
+	  -H pax \
+	  -z \
+	  -c \
+	  -C $(OUTPUTROOT) \
+	  -f $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET).tar.gz \
+	  $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
+
+install-data-local-windows: $(WINDOWS_DEPENDENCY)
+	$(INSTALL) \
+	  -t $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) \
+	  $(shell find $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) ! -type d)
+
+uninstall-local-windows:
+	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
+
 else !CHIPCRAFT_TOOLCHAIN_WINDOWS
 WINDOWS_DEPENDENCY =
+
+pack-windows:
+
+install-data-local-windows:
+
+uninstall-local-windows:
+
 endif !CHIPCRAFT_TOOLCHAIN_WINDOWS
+
+noinst_PROGRAMS := $(PREREQUISITE_PROGRAMS) $(BOOTSTRAP_PROGRAMS)
+noinst_LIBRARIES := $(PREREQUISITE_LIBRARIES)
+
+host: $(BOOTSTRAP_PROGRAMS)
 
 linux: $(LINUX_DEPENDENCY)
 
 windows: $(WINDOWS_DEPENDENCY)
 
 all: linux windows
+
+pack: pack-linux pack-windows
+
+help:
+	@echo "The following targets are available:"
+	@echo "  linux - build Linux toolchain"
+	@echo "  windows - build 32-bit Windows toolchain"
+	@echo "  host - build bootstrap environment used for toolchain building"
+	@echo "  install - install toolchains under prefix set during configuration phase"
+	@echo "  	   e.g.: $(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)"
+	@echo "  pack - create *.tar.gz archives with built toolchains"
+	@echo "  clean - remove all files created during build"
+	@echo "  help - this help"
+	@echo ""
+	@echo "By default, the 'linux' and 'windows' targets are built."
+
+install-data-local: install-data-local-linux install-data-local-windows
+
+uninstall-local: uninstall-local-linux uninstall-local-windows
+
+clean-local:
+	-$(RM_RF) \
+	  $(BOOTSTRAPROOT) \
+	  $(LOCALROOT) \
+	  $(OUTPUTROOT) \
+	  $(WORKDIR) \
+	  $(EOL)
 
