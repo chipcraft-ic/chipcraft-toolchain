@@ -215,7 +215,7 @@ SED_SRCDIR_SUBSTITUTIONS := \
 $(WORKDIR)/toolchain/host/.config: \
   $(abs_top_srcdir)/resources/configs/host.in \
   $(EOL)
-	$(MKDIR_P)$ '$(dir $@)'
+	$(MKDIR_P) '$(@D)'
 	$(SED) \
 	  " \
 	    s|!CT_LOCALROOT!|$(LOCALROOT)|; \
@@ -267,7 +267,7 @@ CT_EXTRA_LDFLAGS_FOR_BUILD = \
 $(WORKDIR)/toolchain/mips/%/.config: \
   $(abs_top_srcdir)/resources/configs/mips.in \
   $(EOL)
-	$(MKDIR_P) '$(dir $@)'
+	$(MKDIR_P) '$(@D)'
 	$(SED) \
 	  " \
 	    s|!CT_OUTPUT_DIR!|$(OUTPUTROOT)/$(CT_HOST_TRIPLET)|; \
