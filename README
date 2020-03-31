@@ -104,7 +104,7 @@ Build flow:
                                               |use                        |
                                               |                           |
                                   +-----------v--------------+            |
-                 create archiVe   |                          |            |
+                 create archive   |                          |            |
      make pack+--------------------> $(builddir)/*.tar.gz    |            |
                 for distribution  |                          |            |
                                   |                          |            |
