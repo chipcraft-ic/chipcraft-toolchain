@@ -4,8 +4,9 @@ EOL =
 COMMA =,
 
 CD = cd
-IS_DIR = test -d
+CP_R = cp -r
 # end of line for ease of use in multiline definitions
+EOL =
 MAKE = make
 RM_RF = rm -rf
 
@@ -311,7 +312,10 @@ pack-linux: $(LINUX_DEPENDENCY)
 	  $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 
 install-data-local-linux: $(LINUX_DEPENDENCY)
-	$(foreach file,$(shell find $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) ! -type d),$(INSTALL) -D $(file) $(file:$(OUTPUTROOT)/%=$(DESTDIR)/$(prefix)/mips-cc-elf/%))
+	$(MKDIR_P) $(DESTDIR)/$(prefix)/mips-cc-elf
+	$(CP_R) \
+	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) \
+	  $(DESTDIR)/$(prefix)/mips-cc-elf/
 
 uninstall-local-linux:
 	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
@@ -356,7 +360,10 @@ pack-windows: $(WINDOWS_DEPENDENCY)
 	  $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
 
 install-data-local-windows: $(WINDOWS_DEPENDENCY)
-	$(foreach file,$(shell find $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) ! -type d),$(INSTALL) -D $(file) $(file:$(OUTPUTROOT)/%=$(DESTDIR)/$(prefix)/mips-cc-elf/%))
+	$(MKDIR_P) $(DESTDIR)/$(prefix)/mips-cc-elf
+	$(CP_R) \
+	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) \
+	  $(DESTDIR)/$(prefix)/mips-cc-elf/
 
 uninstall-local-windows:
 	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)

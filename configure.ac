@@ -96,7 +96,6 @@ dnl dependency checks
 
 AX_CHECK_GNU_MAKE([], AC_MSG_ERROR([GNU Make is required to build project.]))
 AC_PROG_CC dnl we need a compiler
-AC_PROG_INSTALL dnl we need an installer
 AC_PROG_LN_S dnl check for a way to create links
 AC_PROG_MKDIR_P dnl check for a way to create directories
 AC_PROG_SED dnl check for sed
