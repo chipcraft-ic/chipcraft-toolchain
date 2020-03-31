@@ -311,9 +311,7 @@ pack-linux: $(LINUX_DEPENDENCY)
 	  $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 
 install-data-local-linux: $(LINUX_DEPENDENCY)
-	$(INSTALL) \
-	  -t $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) \
-	  $(shell find $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) ! -type d)
+	$(foreach file,$(shell find $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) ! -type d),$(INSTALL) -D $(file) $(file:$(OUTPUTROOT)/%=$(DESTDIR)/$(prefix)/mips-cc-elf/%))
 
 uninstall-local-linux:
 	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
@@ -358,9 +356,7 @@ pack-windows: $(WINDOWS_DEPENDENCY)
 	  $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
 
 install-data-local-windows: $(WINDOWS_DEPENDENCY)
-	$(INSTALL) \
-	  -t $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) \
-	  $(shell find $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) ! -type d)
+	$(foreach file,$(shell find $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) ! -type d),$(INSTALL) -D $(file) $(file:$(OUTPUTROOT)/%=$(DESTDIR)/$(prefix)/mips-cc-elf/%))
 
 uninstall-local-windows:
 	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
