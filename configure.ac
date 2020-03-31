@@ -276,7 +276,10 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/linux],
   [CHIPCRAFT_TOOLCHAIN_LINUX_SRCDIR]dnl
 )
 AS_VAR_SET_IF(GIT,
-  [${GIT} -C ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/linux checkout v${CHIPCRAFT_TOOLCHAIN_KERNEL}],
+  [sh -c " \
+     cd ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/linux; \
+     ${GIT} checkout v${CHIPCRAFT_TOOLCHAIN_KERNEL}; \
+  "],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils],
@@ -284,7 +287,10 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils],
   [CHIPCRAFT_TOOLCHAIN_BINUTILS_SRCDIR]dnl
 )
 AS_VAR_SET_IF(GIT,
-  [${GIT} -C ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils checkout chipcraft-binutils-2.34],
+  [sh -c " \
+     cd ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils; \
+     ${GIT} checkout chipcraft-binutils-2.34; \
+  "],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/bison],
@@ -312,7 +318,10 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gcc],
   [CHIPCRAFT_TOOLCHAIN_GCC_SRCDIR]dnl
 )
 AS_VAR_SET_IF(GIT,
-  [${GIT} -C ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gcc checkout chipcraft-gcc-9.3],
+  [sh -c " \
+     cd ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gcc; \
+     ${GIT} checkout chipcraft-gcc-9.3; \
+  "],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gettext],
