@@ -1,5 +1,13 @@
-# TODO
+# replace <username> with your user
+# ensure you have ssh-keygen installed
+# execute:
+#  ssh-keygen -t rsa -f /home/<username>/.ssh/chipcraft-github
+# next, log in to github
+# cat chipcraft-github.pub
+# and paste the output as ssh key usable by github
 
 Host chipcraft-git
+  User git
   HostName github.com
+  IdentityFile /home/<username>/.ssh/chipcraft-github
 

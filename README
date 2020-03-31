@@ -19,6 +19,7 @@ The tool is cloned from company repository (by itself fork of open source
 project). Some patches were applied to ensure the tools works with our custom
 repos. Note that those patches are held in branch named 'chipcraft-master'.
 
+
 Repositories are downloaded using git over ssh. Configuration examples, setting
 the necessary ssh alias can be viewed in resources/misc/ directory.
 
@@ -120,8 +121,4 @@ Build flow:
                                   |                                              |
                                   +----------------------------------------------+
 
-
-
-When we set up proper git repository, available to many developers, this README
-will be updated with correct address.
 
