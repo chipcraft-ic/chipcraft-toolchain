@@ -302,20 +302,26 @@ LINUX_DEPENDENCY := \
   $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc \
   $(EOL)
 
-pack-linux: $(LINUX_DEPENDENCY)
+$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET).tar.gz: $(LINUX_DEPENDENCY)
 	$(TAR) \
 	  -H pax \
 	  -z \
 	  -c \
 	  -C $(OUTPUTROOT) \
-	  -f $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET).tar.gz \
-	  $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
+	  -f $@ \
+	  $(@:%.tar.gz=%)
 
-install-data-local-linux: $(LINUX_DEPENDENCY)
+pack-linux: $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET).tar.gz
+
+$(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET): \
+  $(LINUX_DEPENDENCY)
 	$(MKDIR_P) $(DESTDIR)/$(prefix)/mips-cc-elf
 	$(CP_R) \
 	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) \
 	  $(DESTDIR)/$(prefix)/mips-cc-elf/
+
+install-data-local-linux: \
+  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 
 uninstall-local-linux:
 	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
@@ -350,20 +356,26 @@ WINDOWS_DEPENDENCY := \
   $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/mips-cc-elf-gcc.exe \
   $(EOL)
 
-pack-windows: $(WINDOWS_DEPENDENCY)
+$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET).tar.gz: $(LINUX_DEPENDENCY)
 	$(TAR) \
 	  -H pax \
 	  -z \
 	  -c \
 	  -C $(OUTPUTROOT) \
-	  -f $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET).tar.gz \
-	  $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
+	  -f $@ \
+	  $(@:%.tar.gz=%)
 
-install-data-local-windows: $(WINDOWS_DEPENDENCY)
+pack-windows: $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET).tar.gz
+
+$(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
+  $(WINDOWS_DEPENDENCY)
 	$(MKDIR_P) $(DESTDIR)/$(prefix)/mips-cc-elf
 	$(CP_R) \
 	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) \
 	  $(DESTDIR)/$(prefix)/mips-cc-elf/
+
+install-data-local-windows: \
+  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
 
 uninstall-local-windows:
 	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
@@ -415,5 +427,7 @@ clean-local:
 	  $(LOCALROOT) \
 	  $(OUTPUTROOT) \
 	  $(WORKDIR) \
+	  $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET).tar.gz \
+	  $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET).tar.gz \
 	  $(EOL)
 
