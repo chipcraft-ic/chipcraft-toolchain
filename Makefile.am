@@ -49,7 +49,7 @@ $$(WORKDIR)/$$(notdir $$(basename $1))/$4: \
 	$$(EOL)
 
 $$(LOCALROOT)/$1: \
-  PATH := $$(LOCALROOT)/bin:$$(PATH) \
+  PATH := $$(LOCALROOT)/bin:/usr/bin:$$(PATH) \
   $(EOL)
 
 $$(LOCALROOT)/$1: \
@@ -288,7 +288,7 @@ $(WORKDIR)/toolchain/mips/linux/.config: \
   CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc: \
-  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:$(PATH)
+  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:/usr/bin:$(PATH)
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc: \
   $(WORKDIR)/toolchain/mips/linux/.config \
   $(PREREQUISITES) \
@@ -342,7 +342,7 @@ $(WORKDIR)/toolchain/mips/windows/.config: \
   CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
 
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/mips-cc-elf-gcc.exe: \
-  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:$(PATH)
+  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:/usr/bin:$(PATH)
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/mips-cc-elf-gcc.exe: \
   $(WORKDIR)/toolchain/mips/windows/.config \
   $(PREREQUISITES) \
