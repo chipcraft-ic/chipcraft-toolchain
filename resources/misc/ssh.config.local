@@ -1,7 +1,19 @@
-# replace <username> with your user
-# ensure you have ssh-keygen installed
-# execute:
+# It's possible to use locally downloaded repositories as source for components
+# to be downloaded. The repositories must be in directory $HOME/chipcraft-ic/,
+# named identically as github repositories.
+# To use them, chipcraft-git ssh alias must point to the user owning $HOME,
+# and ssh server must listen on localhost.
+# Modify $HOME/.ssh/config with entries below, while you also:
+# 1. replace <username> token with your user name
+# 2. ensure you have ssh-keygen installed
+# 3. execute:
 #  ssh-keygen -t rsa -f /home/<username>/.ssh/localhost
+# 4. add the generated public key to list of authorized keys:
+#  cat /home/<username>/.ssh/localhost.pub >> /home/<username>/.ssh/authorized_keys
+# 5. optionally you may need to add the generated keys to ssh-agent:
+#  ssh-add /home/<username>/.ssh/localhost
+
+# Configuration template to add to $HOME/.ssh/config
 
 Host chipcraft-git
   User <username>

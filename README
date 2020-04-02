@@ -1,4 +1,6 @@
-This project creates development toolchain for supported platforms.
+This project creates development toolchain targetting ChipCrafts architecture
+for supported platforms.
+
 Toolchain consists of:
 - compiler
 - binutils
@@ -6,13 +8,13 @@ Toolchain consists of:
 - debugger
 - make
 
+Supported platorms:
+- Linux x86_64
+- Windows
+
 Toolchain components will be cloned from company repositories (by themselves
 forks of open source projects). Note that component repositories all have branch
 named 'chipcraft-master', which contains any necessary patches.
-
-Supported platorms:
-- Linux
-- Windows
 
 The main work is done by crosstool-ng (https://crosstool-ng.github.io/).
 The tool is cloned from company repository (by itself fork of open source
@@ -20,16 +22,16 @@ project). Some patches were applied to ensure the tools works with our custom
 repos. Note that those patches are held in branch named 'chipcraft-master'.
 
 
-Repositories are downloaded using git over ssh. Configuration examples, setting
-the necessary ssh alias can be viewed in resources/misc/ directory.
-
-
-Build system uses autotools, steps to build:
+Build system uses autotools. Steps to build:
 ./bootstrap
 ./configure
 make
 
 
+Repositories are downloaded using git over ssh. It's required to set up an
+alias named 'chipcraft-git' in ssh client configuration files. Examples of
+such configuration ofr github and for localhost are available in
+'resources/misc/' directory.
 
 Note that you can disable specific platforms at configuration step and build
 only specific platforms at make step:
@@ -42,6 +44,14 @@ make linux
 to only build Linux toolchain and
 make windows
 to only build Windwos toolchain.
+
+It's possible to change repository URL for any of the downloaded components
+during configuration step. It's also possible to customize location of
+downloaded components (and even reuse already downloaded ones). See output of
+'./configure --help' for more information.
+
+To see list of available make targets, see output of 'make help'.
+
 
 Build flow:
      |
@@ -58,12 +68,13 @@ Build flow:
    clone       |  | libiconv libtool linux m4     |   |                           |  |
      +         |  | make mpc mpfr ncurses zlib    |   |                           |  |
      |         |  |                               |   |                           |  |
-     |         |  +-------------------------------+   +---------------------------+  |
+     v         |  |                               |   |                           |  |
+ ./bootstrap   |  +-------------------------------+   +---------------------------+  |
      |         +-^-------------------------------------------------------------------+
      v           |               |                                 |
  ./configure+----+               +                                 +
       +       request          clone                             clone
-      +                          +                                 +
+      |                          +                                 +
    build                         v                                 v
    machine          +------------+---------------------------------+-----------------+
    checks           |                                                                | use
@@ -81,9 +92,9 @@ Build flow:
       |                          |                      +-----+     |                |  | |
       |                          +-----------+----------+     |     +----------------+  | |
       |                                      |                |use          |use        | |
-      |                                      |             +--v-------------v--------+  | |
+      |                                      )             +--v-------------v--------+  | |
       +-->bootstrap toolchain+---------------------------->+$(builddir)/bootstraproot|  | |
-      |                                      |             |                         |  | |
+      |                                      )             |                         |  | |
       |                                      |             |  gcc                    |  | |
       |                                      |             |  glibc                  <--+ |
       |                                      |             |  binutils               |    |
