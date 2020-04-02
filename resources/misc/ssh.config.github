@@ -100,7 +100,7 @@
 #
 #
 # 5. optionally you may need to add the generated keys to ssh-agent:
-#  ssh-add /home/<username>/.ssh/localhost
+#  ssh-add /home/<username>/.ssh/chipcraft-github
 
 # Configuration template to add to $HOME/.ssh/config
 
