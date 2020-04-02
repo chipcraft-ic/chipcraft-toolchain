@@ -162,20 +162,16 @@ AC_ARG_WITH(components-path,
 dnl configure what should be built
 
 AC_ARG_ENABLE([linux-toolchain],
-  [
-    AS_HELP_STRING([--disable-linux-toolchain],
-      [do not build static toolchain for linux]dnl
-    )
-  ],
+  AS_HELP_STRING([--disable-linux-toolchain],
+    [do not build static toolchain for linux]dnl
+  ),
   [],
   [AS_VAR_SET(enable_linux_toolchain, yes)]
 )
 AC_ARG_ENABLE([windows-toolchain],
-  [
-    AS_HELP_STRING([--disable-windows-toolchain],
-      [do not build static toolchain for windows x86 32-bit]dnl
-    )
-  ],
+  AS_HELP_STRING([--disable-windows-toolchain],
+    [do not build static toolchain for windows x86 32-bit]dnl
+  ),
   [],
   [AS_VAR_SET(enable_windows_toolchain, yes)]dnl
 )
