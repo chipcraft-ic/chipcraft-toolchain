@@ -11,7 +11,7 @@ AC_INIT([chipcraft-toolchain],
     | awk -v version="unknown" '{print} END { if (NR==0) {print version} }'dnl
   ])),
   [office@chipcraft-ic.com],
-  [chipcraft-toolchain-dist],
+  [],
   [chipcraft-ic.com]dnl
 )
 AC_CONFIG_MACRO_DIR([m4]) dnl $(srcdir)/m4 directory will contain custom m4
@@ -25,7 +25,7 @@ dnl tar-pax : tar format used when building distribution archive
 dnl dist-bzip2 : compress the distribution archive with bzip2
 dnl -Wall : warn about everything, TODO: consider lowering that
 dnl note that AM_INIT_AUTOMAKE is very sensitive to whitespace
-AM_INIT_AUTOMAKE([foreign subdir-objects tar-pax dist-bzip2 -Wall])
+AM_INIT_AUTOMAKE([foreign subdir-objects tar-pax -Wall])
 AM_SILENT_RULES([yes]) dnl less verbose automake
 AC_CONFIG_FILES([Makefile]) dnl output of configuration stage as Makefile
                             dnl from input file 'Makefile.in'
@@ -389,6 +389,9 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/ct-ng],
   [CHIPCRAFT_TOOLCHAIN_CT_NG_SRCDIR]dnl
 )
 
+dnl Generating version from git makes VERSION string empty, reset it
+AS_VAR_SET(VERSION, ${PACKAGE_VERSION})
+AC_SUBST(VERSION)
 dnl must be called last
 AC_OUTPUT dnl executes all operations needed to produce the output Makefile
 

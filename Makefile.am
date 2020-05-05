@@ -12,6 +12,7 @@ RM_RF = rm -rf
 
 EXTRA_DIST = \
   bootstrap \
+  LICENSE \
   m4 \
   resources \
   $(EOL)
