@@ -257,6 +257,7 @@ $(BOOTSTRAP): \
 	&& $(LOCALROOT)/bin/ct-ng build \
 	$(EOL)
 
+# will be filled by platform-specific rules
 CT_EXTRA_CFLAGS_FOR_BUILD =
 CT_EXTRA_LDFLAGS_FOR_BUILD = \
   -Wl,--rpath \
@@ -265,6 +266,8 @@ CT_EXTRA_LDFLAGS_FOR_BUILD = \
   -Wl,$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/sysroot/usr/$(CHIPCRAFT_TOOLCHAIN_LIBDIR) \
   -Wl,--dynamic-linker=$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/sysroot/$(CHIPCRAFT_TOOLCHAIN_LIBDIR)/ld-2.23.so
   $(EOL)
+
+CT_EXTRA_LDFLAGS_FOR_HOST =
 
 $(WORKDIR)/toolchain/mips/%/.config: \
   $(abs_top_srcdir)/resources/configs/mips.in \
@@ -278,6 +281,7 @@ $(WORKDIR)/toolchain/mips/%/.config: \
 	    s|!CT_HOST_TRIPLET!|$(CT_HOST_TRIPLET)|; \
 	    s|!CT_EXTRA_CFLAGS_FOR_BUILD!|$(CT_EXTRA_CFLAGS_FOR_BUILD)|; \
 	    s|!CT_EXTRA_LDFLAGS_FOR_BUILD!|$(CT_EXTRA_LDFLAGS_FOR_BUILD)|; \
+	    s|!CT_EXTRA_LDFLAGS_FOR_HOST!|$(CT_EXTRA_LDFLAGS_FOR_HOST)|; \
 	    $(SED_SRCDIR_SUBSTITUTIONS) \
 	  " \
 	$(word 1,$^) > $@ \
@@ -287,6 +291,10 @@ if CHIPCRAFT_TOOLCHAIN_LINUX
 # one variable assignment per rule!
 $(WORKDIR)/toolchain/mips/linux/.config: \
   CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
+$(WORKDIR)/toolchain/mips/linux/.config: \
+  CT_EXTRA_LDFLAGS_FOR_HOST = \
+    -Wl,--whole-archive -lrt -lpthread -Wl,--no-whole-archive \
+    $(EOL)
 
 $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc: \
   PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:/usr/bin:$(PATH)
@@ -305,11 +313,11 @@ LINUX_DEPENDENCY := \
 
 $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET).tar.gz: $(LINUX_DEPENDENCY)
 	$(TAR) \
-	  -H pax \
-	  -z \
-	  -c \
-	  -C $(OUTPUTROOT) \
-	  -f $@ \
+	  --directory=$(OUTPUTROOT) \
+	  --create \
+	  --file=$@ \
+	  --format=posix \
+	  --gzip \
 	  $(@:%.tar.gz=%)
 
 pack-linux: $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET).tar.gz
@@ -325,7 +333,8 @@ install-data-local-linux: \
   $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 
 uninstall-local-linux:
-	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
+	$(RM_RF) \
+	  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 
 else !CHIPCRAFT_TOOLCHAIN_LINUX
 LINUX_DEPENDENCY =
@@ -359,11 +368,11 @@ WINDOWS_DEPENDENCY := \
 
 $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET).tar.gz: $(LINUX_DEPENDENCY)
 	$(TAR) \
-	  -H pax \
-	  -z \
-	  -c \
-	  -C $(OUTPUTROOT) \
-	  -f $@ \
+	  --directory=$(OUTPUTROOT) \
+	  --create \
+	  --file=$@ \
+	  --format=posix \
+	  --gzip \
 	  $(@:%.tar.gz=%)
 
 pack-windows: $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET).tar.gz
