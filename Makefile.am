@@ -328,6 +328,7 @@ $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET): \
 	$(CP_R) \
 	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) \
 	  $(DESTDIR)/$(prefix)/mips-cc-elf/
+	$(RM_RF) $@/build.log
 
 install-data-local-linux: \
   $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
@@ -383,6 +384,7 @@ $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
 	$(CP_R) \
 	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) \
 	  $(DESTDIR)/$(prefix)/mips-cc-elf/
+	$(RM_RF) $@/build.log
 
 install-data-local-windows: \
   $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
