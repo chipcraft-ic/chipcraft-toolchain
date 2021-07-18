@@ -183,7 +183,6 @@ AM_CONDITIONAL([CHIPCRAFT_TOOLCHAIN_WINDOWS],
   [test "x${enable_windows_toolchain}" = "xyes"]dnl
 )
 
-
 dnl for linux taken from found compiler
 AX_CHIPCRAFT_ARG_DEFAULT_VAR([CHIPCRAFT_TOOLCHAIN_LINUX_TRIPLET],
   [Target triplet used by crosstool-ng for linux build],
@@ -231,6 +230,28 @@ AS_IF([test "x${enable_windows_toolchain}" = "xyes"],
       [${PATH}]dnl
     )
   ]
+)
+
+AC_ARG_ENABLE([mips],
+  AS_HELP_STRING([--disable-mips],
+    [do not build static toolchain for MIPS-based boards]dnl
+  ),
+  [],
+  [AS_VAR_SET(enable_arch_mips, yes)]
+)
+AC_ARG_ENABLE([riscv],
+  AS_HELP_STRING([--disable-riscv],
+    [do not build static toolchain for RISC-V-based boards]dnl
+  ),
+  [],
+  [AS_VAR_SET(enable_arch_riscv, yes)]dnl
+)
+dnl pass the choices to Makefile
+AM_CONDITIONAL([CHIPCRAFT_TOOLCHAIN_ARCH_MIPS],
+  [test "x${enable_arch_mips}" = "xyes"]dnl
+)
+AM_CONDITIONAL([CHIPCRAFT_TOOLCHAIN_ARCH_RISCV],
+  [test "x${enable_arch_riscv}" = "xyes"]dnl
 )
 
 dnl check whether dependencies are present in given directories
@@ -284,7 +305,7 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils],
 AS_VAR_SET_IF(GIT,
   [sh -c " \
      cd ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils; \
-     ${GIT} checkout chipcraft-binutils-2.34; \
+     ${GIT} checkout chipcraft-binutils-host; \
   "],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
@@ -315,7 +336,7 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gcc],
 AS_VAR_SET_IF(GIT,
   [sh -c " \
      cd ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gcc; \
-     ${GIT} checkout chipcraft-gcc-9.3; \
+     ${GIT} checkout chipcraft-gcc-host; \
   "],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
@@ -357,31 +378,38 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/zlib],
 )
 
 dnl check final toolchain components
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mips-binutils-gdb],
-  [chipcraft-git:chipcraft-ic/toolchain-component-mips-binutils-gdb],
-  [CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_GDB_SRCDIR]dnl
+AS_IF([test "x${enable_arch_mips}" = "xyes"],
+  [
+    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mips-binutils-gdb],
+      [chipcraft-git:chipcraft-ic/toolchain-component-mips-binutils-gdb],
+      [CHIPCRAFT_TOOLCHAIN_MIPS_BINUTILS_GDB_SRCDIR]dnl
+    )
+    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mips-gcc],
+      [chipcraft-git:chipcraft-ic/toolchain-component-mips-gcc],
+      [CHIPCRAFT_TOOLCHAIN_MIPS_GCC_SRCDIR]dnl
+    )
+    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mips-newlib],
+      [chipcraft-git:chipcraft-ic/toolchain-component-mips-newlib],
+      [CHIPCRAFT_TOOLCHAIN_MIPS_NEWLIB_SRCDIR]dnl
+    )
+  ]
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mips-gcc],
-  [chipcraft-git:chipcraft-ic/toolchain-component-mips-gcc],
-  [CHIPCRAFT_TOOLCHAIN_MIPS_GCC_SRCDIR]dnl
+AS_IF([test "x${enable_arch_riscv}" = "xyes"],
+  [
+    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}riscv-binutils-gdb],
+      [chipcraft-git:chipcraft-ic/toolchain-component-riscv-binutils-gdb],
+      [CHIPCRAFT_TOOLCHAIN_RISCV_BINUTILS_GDB_SRCDIR]dnl
+    )
+    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}riscv-gcc],
+      [chipcraft-git:chipcraft-ic/toolchain-component-riscv-gcc],
+      [CHIPCRAFT_TOOLCHAIN_RISCV_GCC_SRCDIR]dnl
+    )
+    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}riscv-newlib],
+      [chipcraft-git:chipcraft-ic/toolchain-component-riscv-newlib],
+      [CHIPCRAFT_TOOLCHAIN_RISCV_NEWLIB_SRCDIR]dnl
+    )
+  ]
 )
-AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/mips-newlib],
-  [chipcraft-git:chipcraft-ic/toolchain-component-mips-newlib],
-  [CHIPCRAFT_TOOLCHAIN_MIPS_NEWLIB_SRCDIR]dnl
-)
-dnl TODO: future RISC-V extensions
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}iscv-binutils-gdb],
-dnl   [chipcraft-git:chipcraft-ic/toolchain-component-riscv-binutils-gdb],
-dnl   [CHIPCRAFT_TOOLCHAIN_RISCV_BINUTILS_GDB_SRCDIR]dnl
-dnl )
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}iscv-gcc],
-dnl   [chipcraft-git:chipcraft-ic/toolchain-component-riscv-gcc],
-dnl   [CHIPCRAFT_TOOLCHAIN_RISCV_GCC_SRCDIR]dnl
-dnl )
-dnl AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}iscv-newlib],
-dnl   [chipcraft-git:chipcraft-ic/toolchain-component-riscv-newlib],
-dnl   [CHIPCRAFT_TOOLCHAIN_RISCV_NEWLIB_SRCDIR]dnl
-dnl )
 
 dnl check whether our patched crosstool-ng is present
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/ct-ng],
