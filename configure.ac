@@ -393,13 +393,13 @@ AS_IF([test "x${enable_arch_mips}" = "xyes"],
 )
 AS_IF([test "x${enable_arch_riscv}" = "xyes"],
   [
-    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}riscv-binutils-gdb],
+    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/riscv-binutils-gdb],
       [chipcraft-git:chipcraft-ic/toolchain-component-riscv-binutils-gdb],
       [CHIPCRAFT_TOOLCHAIN_RISCV_BINUTILS_GDB_SRCDIR])
-    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}riscv-gcc],
+    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/riscv-gcc],
       [chipcraft-git:chipcraft-ic/toolchain-component-riscv-gcc],
       [CHIPCRAFT_TOOLCHAIN_RISCV_GCC_SRCDIR])
-    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}riscv-newlib],
+    AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/riscv-newlib],
       [chipcraft-git:chipcraft-ic/toolchain-component-riscv-newlib],
       [CHIPCRAFT_TOOLCHAIN_RISCV_NEWLIB_SRCDIR])
   ]
