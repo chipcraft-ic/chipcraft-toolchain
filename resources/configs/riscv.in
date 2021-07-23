@@ -430,7 +430,7 @@ CT_GCC_later_than_4_8=y
 CT_GCC_4_8_or_later=y
 CT_CC_GCC_HAS_LIBMPX=y
 CT_CC_GCC_ENABLE_CXX_FLAGS=""
-CT_CC_GCC_CORE_EXTRA_CONFIG_ARRAY=""
+CT_CC_GCC_CORE_EXTRA_CONFIG_ARRAY="--enable-multilib --with-multilib-generator=\"rv32imafdc-ilp32d--;rv32imafd-ilp32d--;rv32imac-ilp32--;rv32ima-ilp32--\""
 CT_CC_GCC_EXTRA_CONFIG_ARRAY="--enable-multilib --with-multilib-generator=\"rv32imafdc-ilp32d--;rv32imafd-ilp32d--;rv32imac-ilp32--;rv32ima-ilp32--\""
 CT_CC_GCC_MULTILIB_LIST=""
 CT_CC_GCC_STATIC_LIBSTDCXX=y
