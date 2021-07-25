@@ -1,14 +1,13 @@
 VPATH += $(abs_top_builddir)
 
-EOL =
-COMMA =,
-
-CD = cd
-CP_R = cp -r
 # end of line for ease of use in multiline definitions
-EOL =
-MAKE = make
-RM_RF = rm -rf
+EOL :=
+COMMA :=,
+
+CD := cd
+CP_R := cp -r
+MAKE := make
+RM_RF := rm -rf
 
 EXTRA_DIST = \
   bootstrap \
@@ -18,14 +17,14 @@ EXTRA_DIST = \
   $(EOL)
 
 # directory where all the building shall be done
-WORKDIR = $(abs_top_builddir)/workdir
+WORKDIR := $(abs_top_builddir)/workdir
 # directory where 3rd party tools used for
 # building the toolchains shall be installed
-LOCALROOT = $(abs_top_builddir)/localroot
+LOCALROOT := $(abs_top_builddir)/localroot
 # directory where bootstrap toolchain will be installed
-BOOTSTRAPROOT = $(abs_top_builddir)/bootstraproot
+BOOTSTRAPROOT := $(abs_top_builddir)/bootstraproot
 # directory where finished bare metal toolchains will be installed
-OUTPUTROOT = $(abs_top_builddir)/outputroot
+OUTPUTROOT := $(abs_top_builddir)/outputroot
 
 # installer(package, srcdir, prerequisites, build_check_file, configure_flags)
 define installer
@@ -57,7 +56,7 @@ $$(LOCALROOT)/$1: \
   $$(WORKDIR)/$$(notdir $$(basename $1))/$4 \
   $$(EOL)
 	$$(MAKE) -C '$$(WORKDIR)/$$(notdir $$(basename $1))' \
-	  prefix=$$(LOCALROOT) \
+	  prefix="$$(LOCALROOT)" \
 	  install \
 	  $$(EOL)
 endef
