@@ -56,7 +56,6 @@ $$(LOCALROOT)/$1: \
   $$(WORKDIR)/$$(notdir $$(basename $1))/$4 \
   $$(EOL)
 	$$(MAKE) -C '$$(WORKDIR)/$$(notdir $$(basename $1))' \
-	  prefix="$$(LOCALROOT)" \
 	  install \
 	  $$(EOL)
 endef
