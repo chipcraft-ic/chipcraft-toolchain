@@ -299,15 +299,8 @@ AS_VAR_SET_IF(GIT,
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils],
-  [chipcraft-git:chipcraft-ic/toolchain-component-mips-binutils-gdb],
+  [chipcraft-git:chipcraft-ic/toolchain-component-host-binutils-gdb],
   [CHIPCRAFT_TOOLCHAIN_BINUTILS_SRCDIR]dnl
-)
-AS_VAR_SET_IF(GIT,
-  [sh -c " \
-     cd ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/binutils; \
-     ${GIT} checkout chipcraft-binutils-host; \
-  "],
-  [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/bison],
   [chipcraft-git:chipcraft-ic/toolchain-component-bison],
@@ -330,15 +323,8 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gawk],
   [CHIPCRAFT_TOOLCHAIN_GAWK_SRCDIR]dnl
 )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gcc],
-  [chipcraft-git:chipcraft-ic/toolchain-component-mips-gcc],
+  [chipcraft-git:chipcraft-ic/toolchain-component-host-gcc],
   [CHIPCRAFT_TOOLCHAIN_GCC_SRCDIR]dnl
-)
-AS_VAR_SET_IF(GIT,
-  [sh -c " \
-     cd ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gcc; \
-     ${GIT} checkout chipcraft-gcc-host; \
-  "],
-  [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )
 AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/gettext],
   [chipcraft-git:chipcraft-ic/toolchain-component-gettext],
