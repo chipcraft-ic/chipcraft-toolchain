@@ -156,7 +156,7 @@ CT_TOOLCHAIN_BUGURL=""
 #
 CT_TARGET_VENDOR="cc"
 CT_TARGET_ALIAS_SED_EXPR=""
-CT_TARGET_ALIAS="riscv-cc"
+CT_TARGET_ALIAS="riscv-cc-elf"
 
 #
 # Toolchain type
