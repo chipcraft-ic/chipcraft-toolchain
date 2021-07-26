@@ -335,16 +335,16 @@ LINUX_DEPENDENCY += \
   $(EOL)
 
 LINUX_INSTALL_DEPENDENCY += \
-  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) \
+  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc \
   $(EOL)
 
-$(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET): \
+$(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc: \
   $(LINUX_DEPENDENCY)
-	$(MKDIR_P) $(DESTDIR)/$(prefix)/mips-cc-elf
+	$(MKDIR_P) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 	$(CP_R) \
 	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/mips \
-	  $(DESTDIR)/$(prefix)/mips-cc-elf/
-	$(RM_RF) $@/build.log
+	  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/
+	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/build.log
 
 LINUX_PACK_DEPENDENCY += \
   $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-mips.tar.gz \
@@ -381,16 +381,16 @@ LINUX_DEPENDENCY += \
   $(EOL)
 
 LINUX_INSTALL_DEPENDENCY += \
-  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) \
+  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/risc-cc-elf-gcc \
   $(EOL)
 
-$(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET): \
+$(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/riscv-cc-elf-gcc: \
   $(LINUX_DEPENDENCY)
-	$(MKDIR_P) $(DESTDIR)/$(prefix)/riscv-cc-elf
+	$(MKDIR_P) $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 	$(CP_R) \
 	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/riscv \
-	  $(DESTDIR)/$(prefix)/riscv-cc-elf/
-	$(RM_RF) $@/build.log
+	  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/
+	$(RM_RF) $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/build.log
 
 LINUX_PACK_DEPENDENCY += \
   $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-riscv.tar.gz \
@@ -453,16 +453,16 @@ WINDOWS_DEPENDENCY += \
   $(EOL)
 
 WINDOWS_INSTALL_DEPENDENCY += \
-  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) \
+  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/mips-cc-elf-gcc.exe \
   $(EOL)
 
-$(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
+$(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/mips-cc-elf-gcc.exe: \
   $(WINDOWS_DEPENDENCY)
-	$(MKDIR_P) $(DESTDIR)/$(prefix)/mips-cc-elf
+	$(MKDIR_P) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
 	$(CP_R) \
 	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/mips \
-	  $(DESTDIR)/$(prefix)/mips-cc-elf/
-	$(RM_RF) $@/build.log
+	  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/
+	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/build.log
 
 WINDOWS_PACK_DEPENDENCY += \
   $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)-mips.tar.gz \
@@ -499,16 +499,16 @@ WINDOWS_DEPENDENCY += \
   $(EOL)
 
 WINDOWS_INSTALL_DEPENDENCY += \
-  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) \
+  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/riscv-cc-elf-gcc.exe \
   $(EOL)
 
-$(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET): \
+$(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/riscv-cc-elf-gcc.exe: \
   $(WINDOWS_DEPENDENCY)
-	$(MKDIR_P) $(DESTDIR)/$(prefix)/riscv-cc-elf
+	$(MKDIR_P) $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
 	$(CP_R) \
 	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/riscv \
-	  $(DESTDIR)/$(prefix)/riscv-cc-elf/
-	$(RM_RF) $@/build.log
+	  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/
+	$(RM_RF) $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/build.log
 
 WINDOWS_PACK_DEPENDENCY += \
   $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)-riscv.tar.gz \
