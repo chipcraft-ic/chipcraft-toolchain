@@ -381,7 +381,7 @@ LINUX_DEPENDENCY += \
   $(EOL)
 
 LINUX_INSTALL_DEPENDENCY += \
-  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/risc-cc-elf-gcc \
+  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/riscv-cc-elf-gcc \
   $(EOL)
 
 $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/riscv-cc-elf-gcc: \
