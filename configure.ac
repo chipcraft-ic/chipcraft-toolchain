@@ -294,7 +294,7 @@ AX_CHIPCRAFT_CHECK_DEPENDENCY([${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/linux],
 AS_VAR_SET_IF(GIT,
   [sh -c " \
      cd ${CHIPCRAFT_TOOLCHAIN_COMPONENTS_DIR}/linux; \
-     ${GIT} checkout v${CHIPCRAFT_TOOLCHAIN_KERNEL}; \
+     ${GIT} checkout v2.6.32}; \
   "],
   [AC_MSG_ERROR([git presence must be tested before dependency check macro call])]dnl
 )

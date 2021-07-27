@@ -213,8 +213,8 @@ CT_LINUX_CUSTOM_LOCATION="!CT_LINUX_URL!"
 # CT_LINUX_PATCH_LOCAL_BUNDLED is not set
 CT_LINUX_PATCH_NONE=y
 CT_LINUX_PATCH_ORDER="none"
-CT_LINUX_V_!CT_KERNEL_MAJOR!_!CT_KERNEL_MINOR!=y
-CT_LINUX_VERSION="!CT_KERNEL_VERSION!"
+CT_LINUX_V_2_6_32=y
+CT_LINUX_VERSION="2.6.32"
 CT_LINUX_MIRRORS="$(CT_Mirrors kernel.org linux ${CT_LINUX_VERSION})"
 CT_LINUX_ARCHIVE_FILENAME="@{pkg_name}-@{version}"
 CT_LINUX_ARCHIVE_DIRNAME="@{pkg_name}-@{version}"
@@ -338,7 +338,7 @@ CT_GLIBC_CUSTOM_LOCATION="!CT_GLIBC_URL!"
 # CT_GLIBC_PATCH_LOCAL_BUNDLED is not set
 CT_GLIBC_PATCH_NONE=y
 CT_GLIBC_PATCH_ORDER="none"
-CT_GLIBC_VERY_NEW=y
+# CT_GLIBC_VERY_NEW is not set
 # CT_GLIBC_V_2_33 is not set
 # CT_GLIBC_V_2_32 is not set
 # CT_GLIBC_V_2_31 is not set
@@ -347,34 +347,33 @@ CT_GLIBC_VERY_NEW=y
 # CT_GLIBC_V_2_28 is not set
 # CT_GLIBC_V_2_27 is not set
 # CT_GLIBC_V_2_26 is not set
-# CT_GLIBC_V_2_25 is not set
+CT_GLIBC_V_2_25=y
 # CT_GLIBC_V_2_24 is not set
 # CT_GLIBC_V_2_23 is not set
 # CT_GLIBC_V_2_19 is not set
 # CT_GLIBC_V_2_17 is not set
 # CT_GLIBC_V_2_12_1 is not set
 # CT_GLIBC_NO_VERSIONS is not set
-CT_GLIBC_VERSION="new"
+CT_GLIBC_VERSION="2.25"
 CT_GLIBC_MIRRORS="$(CT_Mirrors GNU glibc)"
 CT_GLIBC_ARCHIVE_FILENAME="@{pkg_name}-@{version}"
 CT_GLIBC_ARCHIVE_DIRNAME="@{pkg_name}-@{version}"
 CT_GLIBC_ARCHIVE_FORMATS=".tar.xz .tar.bz2 .tar.gz"
 CT_GLIBC_SIGNATURE_FORMAT="packed/.sig"
-CT_GLIBC_later_than_2_32=y
-CT_GLIBC_2_32_or_later=y
-CT_GLIBC_later_than_2_32=y
-CT_GLIBC_2_30_or_later=y
-CT_GLIBC_later_than_2_30=y
-CT_GLIBC_2_29_or_later=y
-CT_GLIBC_later_than_2_29=y
-CT_GLIBC_2_28_or_later=y
-CT_GLIBC_later_than_2_28=y
-CT_GLIBC_2_27_or_later=y
-CT_GLIBC_later_than_2_27=y
-CT_GLIBC_2_26_or_later=y
-CT_GLIBC_later_than_2_26=y
+CT_GLIBC_2_32_or_older=y
+CT_GLIBC_older_than_2_32=y
+CT_GLIBC_2_30_or_older=y
+CT_GLIBC_older_than_2_30=y
+CT_GLIBC_2_29_or_older=y
+CT_GLIBC_older_than_2_29=y
+CT_GLIBC_2_28_or_older=y
+CT_GLIBC_older_than_2_28=y
+CT_GLIBC_2_27_or_older=y
+CT_GLIBC_older_than_2_27=y
+CT_GLIBC_2_26_or_older=y
+CT_GLIBC_older_than_2_26=y
+CT_GLIBC_2_25_or_older=y
 CT_GLIBC_2_25_or_later=y
-CT_GLIBC_later_than_2_25=y
 CT_GLIBC_2_24_or_later=y
 CT_GLIBC_later_than_2_24=y
 CT_GLIBC_2_23_or_later=y
@@ -399,13 +398,13 @@ CT_GLIBC_EXTRA_CFLAGS=""
 # CT_GLIBC_ENABLE_OBSOLETE_RPC is not set
 # CT_GLIBC_ENABLE_FORTIFIED_BUILD is not set
 CT_GLIBC_DISABLE_VERSIONING=y
-CT_GLIBC_OLDEST_ABI="2.33"
+CT_GLIBC_OLDEST_ABI="2.25"
 # CT_GLIBC_FORCE_UNWIND is not set
 # CT_GLIBC_LOCALES is not set
 # CT_GLIBC_KERNEL_VERSION_NONE is not set
 CT_GLIBC_KERNEL_VERSION_AS_HEADERS=y
 # CT_GLIBC_KERNEL_VERSION_CHOSEN is not set
-CT_GLIBC_MIN_KERNEL="!CT_KERNEL_VERSION!"
+CT_GLIBC_MIN_KERNEL="2.6.32"
 # CT_GLIBC_SSP_DEFAULT is not set
 CT_GLIBC_SSP_NO=y
 # CT_GLIBC_SSP_YES is not set
