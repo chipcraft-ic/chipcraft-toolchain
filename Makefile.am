@@ -571,12 +571,37 @@ install-data-local: install-data-local-linux install-data-local-windows
 
 uninstall-local: uninstall-local-linux uninstall-local-windows
 
-clean-local:
+.PHONY: clean-local-localroot
+clean-local-localroot:
+	-$(RM_RF) \
+	  $(LOCALROOT) \
+	  $(EOL)
+
+.PHONY: clean-local-bootstraproot
+clean-local-bootstraproot:
 	-$(RM_RF) \
 	  $(BOOTSTRAPROOT) \
-	  $(LOCALROOT) \
+	  $(EOL)
+
+.PHONY: clean-local-outputroot
+clean-local-outputroot:
+	-$(RM_RF) \
 	  $(OUTPUTROOT) \
+	  $(EOL)
+
+.PHONY: clean-local-workdir
+clean-local-workdir:
+	-$(RM_RF) \
 	  $(WORKDIR) \
+	  $(EOL)
+
+clean-local: \
+  clean-local-localroot \
+  clean-local-bootstraproot \
+  clean-local-outputroot \
+  clean-local-workdir \
+  $(EOL)
+	-$(RM_RF) \
 	  $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET).tar.gz \
 	  $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET).tar.gz \
 	  $(EOL)
