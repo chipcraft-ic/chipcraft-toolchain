@@ -3,11 +3,15 @@ VPATH += $(abs_top_builddir)
 # end of line for ease of use in multiline definitions
 EOL :=
 COMMA :=,
+SLASH :=/
 
+CAT := cat
 CD := cd
 CP_R := cp -r
+ECHO := echo -n
 MAKE := make
 RM_RF := rm -rf
+TOUCH := touch
 
 EXTRA_DIST = \
   bootstrap \
@@ -32,8 +36,8 @@ $$(WORKDIR)/$$(notdir $$(basename $1))/Makefile: \
   $2/configure \
   $3 \
   $$(EOL)
-	$$(MKDIR_P) '$$(WORKDIR)/$$(notdir $$(basename $1))'
-	$$(CD) '$$(WORKDIR)/$$(notdir $$(basename $1))' \
+	$$(MKDIR_P) '$$(@D)'
+	$$(CD) '$$(@D)' \
 	&& \
 	  CPPFLAGS="-I$$(LOCALROOT)/include -I$$(LOCALROOT)/include/ncurses" \
 	  LDFLAGS="-L$$(LOCALROOT)/lib" \
@@ -45,7 +49,7 @@ $$(WORKDIR)/$$(notdir $$(basename $1))/Makefile: \
 $$(WORKDIR)/$$(notdir $$(basename $1))/$4: \
   $$(WORKDIR)/$$(notdir $$(basename $1))/Makefile \
   $$(EOL)
-	$$(MAKE) -C '$$(WORKDIR)/$$(notdir $$(basename $1))' \
+	$$(MAKE) -C '$$(<D)' \
 	$$(EOL)
 
 $$(LOCALROOT)/$1: \
@@ -230,23 +234,10 @@ $(WORKDIR)/toolchain/host/.config: \
 	    s|!CT_BITNESS!|$(CHIPCRAFT_TOOLCHAIN_BITNESS)|; \
 	    $(SED_SRCDIR_SUBSTITUTIONS) \
 	  " \
-	$(word 1,$^) > $@ \
+	$< > $@ \
 	$(EOL)
 
-BOOTSTRAP := \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-ar \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-as \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-g++ \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-gcc \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-ld \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-nm \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-objcopy \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-objdump \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-ranlib \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-readelf \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-strings \
-  $(BOOTSTRAPROOT)/bin/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-strip \
-  $(EOL)
+BOOTSTRAP := $(BOOTSTRAPROOT)/.done
 
 $(BOOTSTRAP): \
   $(WORKDIR)/toolchain/host/.config \
@@ -254,153 +245,181 @@ $(BOOTSTRAP): \
   $(EOL)
 	$(CD) $(dir $(word 1,$^)) \
 	&& $(LOCALROOT)/bin/ct-ng build \
+	&& $(TOUCH) $@ \
 	$(EOL)
 
 # will be filled by platform-specific rules
 CT_EXTRA_CFLAGS_FOR_BUILD =
 
 CT_EXTRA_LDFLAGS_FOR_BUILD = \
-  -Wl,--rpath \
+  -Wl,-rpath \
+  -Wl,$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/sysroot/lib \
+  -Wl,-rpath \
   -Wl,$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/sysroot/$(CHIPCRAFT_TOOLCHAIN_LIBDIR) \
-  -Wl,--rpath \
+  -Wl,-rpath \
+  -Wl,$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/sysroot/usr/lib \
+  -Wl,-rpath \
   -Wl,$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/sysroot/usr/$(CHIPCRAFT_TOOLCHAIN_LIBDIR) \
   -Wl,--dynamic-linker=$(BOOTSTRAPROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/sysroot/$(CHIPCRAFT_TOOLCHAIN_LIBDIR)/ld-chipcraft.so
   $(EOL)
 
 CT_EXTRA_LDFLAGS_FOR_HOST =
 
-$(WORKDIR)/toolchain/mips/%/.config: \
-  $(abs_top_srcdir)/resources/configs/mips.in \
-  $(EOL)
-	$(MKDIR_P) '$(@D)'
-	$(SED) \
-	  " \
-	    s|!CT_OUTPUT_DIR!|$(OUTPUTROOT)/$(CT_HOST_TRIPLET)/mips|; \
-	    s|!CT_JOBS!|$(CHIPCRAFT_TOOLCHAIN_CPUS)|; \
-	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)|; \
-	    s|!CT_HOST_TRIPLET!|$(CT_HOST_TRIPLET)|; \
-	    s|!CT_EXTRA_CFLAGS_FOR_BUILD!|$(CT_EXTRA_CFLAGS_FOR_BUILD)|; \
-	    s|!CT_EXTRA_LDFLAGS_FOR_BUILD!|$(CT_EXTRA_LDFLAGS_FOR_BUILD)|; \
-	    s|!CT_EXTRA_LDFLAGS_FOR_HOST!|$(CT_EXTRA_LDFLAGS_FOR_HOST)|; \
-	    $(SED_SRCDIR_SUBSTITUTIONS) \
-	  " \
-	$(word 1,$^) > $@ \
-	$(EOL)
+LINUX_DEPENDENCY = linux-dependent
+LINUX_INSTALL_DEPENDENCY = linux-dependent
+LINUX_UNINSTALL_DEPENDENCY =
+LINUX_PACK_DEPENDENCY = linux-dependent
 
-$(WORKDIR)/toolchain/riscv/%/.config: \
-  $(abs_top_srcdir)/resources/configs/riscv.in \
-  $(EOL)
-	$(MKDIR_P) '$(@D)'
-	$(SED) \
-	  " \
-	    s|!CT_OUTPUT_DIR!|$(OUTPUTROOT)/$(CT_HOST_TRIPLET)/riscv|; \
-	    s|!CT_JOBS!|$(CHIPCRAFT_TOOLCHAIN_CPUS)|; \
-	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)|; \
-	    s|!CT_HOST_TRIPLET!|$(CT_HOST_TRIPLET)|; \
-	    s|!CT_EXTRA_CFLAGS_FOR_BUILD!|$(CT_EXTRA_CFLAGS_FOR_BUILD)|; \
-	    s|!CT_EXTRA_LDFLAGS_FOR_BUILD!|$(CT_EXTRA_LDFLAGS_FOR_BUILD)|; \
-	    s|!CT_EXTRA_LDFLAGS_FOR_HOST!|$(CT_EXTRA_LDFLAGS_FOR_HOST)|; \
-	    $(SED_SRCDIR_SUBSTITUTIONS) \
-	  " \
-	$(word 1,$^) > $@ \
-	$(EOL)
+WINDOWS_DEPENDENCY = windows-dependent
+WINDOWS_INSTALL_DEPENDENCY = windows-dependent
+WINDOWS_UNINSTALL_DEPENDENCY =
+WINDOWS_PACK_DEPENDENCY = windows-dependent
 
-LINUX_DEPENDENCY :=
-LINUX_INSTALL_DEPENDENCY :=
-LINUX_PACK_DEPENDENCY :=
-
-if CHIPCRAFT_TOOLCHAIN_LINUX
-
-if CHIPCRAFT_TOOLCHAIN_ARCH_MIPS
 # one variable assignment per rule!
-$(WORKDIR)/toolchain/mips/linux/.config: \
+
+$(WORKDIR)/toolchain/%/linux/.config: \
   CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
 
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/mips/bin/mips-cc-elf-gcc: \
-  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:/usr/bin:$(PATH)
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/mips/bin/mips-cc-elf-gcc: \
-  $(WORKDIR)/toolchain/mips/linux/.config \
+$(WORKDIR)/toolchain/%/windows/.config: \
+  CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
+
+.checks/template-checker-%/linux-rule: \
+  $(abs_top_srcdir)/resources/configs/%.in \
+  $(EOL)
+	$(MKDIR_P) $(@D)
+	$(ECHO) $< > $@
+
+.checks/template-checker-%/windows-rule: \
+  $(abs_top_srcdir)/resources/configs/%.in \
+  $(EOL)
+	$(MKDIR_P) $(@D)
+	$(ECHO) $< > $@
+
+$(WORKDIR)/toolchain/%/.config: \
+  .checks/template-checker-%-rule \
+  $(EOL)
+	$(MKDIR_P) '$(@D)'
+	$(SED) \
+	  " \
+	    s|!CT_OUTPUT_DIR!|$(OUTPUTROOT)/$(CT_HOST_TRIPLET)|; \
+	    s|!CT_JOBS!|$(CHIPCRAFT_TOOLCHAIN_CPUS)|; \
+	    s|!CT_BUILD_TRIPLET!|$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)|; \
+	    s|!CT_HOST_TRIPLET!|$(CT_HOST_TRIPLET)|; \
+	    s|!CT_EXTRA_CFLAGS_FOR_BUILD!|$(CT_EXTRA_CFLAGS_FOR_BUILD)|; \
+	    s|!CT_EXTRA_LDFLAGS_FOR_BUILD!|$(CT_EXTRA_LDFLAGS_FOR_BUILD)|; \
+	    s|!CT_EXTRA_LDFLAGS_FOR_HOST!|$(CT_EXTRA_LDFLAGS_FOR_HOST)|; \
+	    $(SED_SRCDIR_SUBSTITUTIONS) \
+	  " \
+	$(shell $(CAT) $<) > $@ \
+	$(EOL)
+
+$(OUTPUTROOT)/%/.done: \
+  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:/usr/bin:$(PATH) \
+  $(EOL)
+
+.checks/build-checker-$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/%-rule: \
+  $(WORKDIR)/toolchain/%/linux/.config \
+  $(EOL)
+	$(MKDIR_P) $(@D)
+	$(ECHO) $(<D) > $@
+
+.checks/build-checker-$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/%-rule: \
+  $(WORKDIR)/toolchain/%/windows/.config \
+  $(EOL)
+	$(MKDIR_P) $(@D)
+	$(ECHO) $(<D) > $@
+
+$(OUTPUTROOT)/%/.done: \
+  .checks/build-checker-%-rule \
   $(PREREQUISITES) \
   $(BOOTSTRAP) \
   $(EOL)
-	$(CD) $(dir $(word 1,$^)) \
+	$(CD) $(shell $(CAT) $<) \
 	&& $(LOCALROOT)/bin/ct-ng build \
+	&& $(TOUCH) $@ \
 	$(EOL)
 
+.checks/install-checker-%-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-rule: \
+  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/%/.done \
+  $(EOL)
+	$(MKDIR_P) $(@D)
+	$(ECHO) $(<D) > $@
+
+.checks/install-checker-%-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)-rule: \
+  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/%/.done \
+  $(EOL)
+	$(MKDIR_P) $(@D)
+	$(ECHO) $(<D) > $@
+
+$(DESTDIR)/$(prefix)/%/.done: \
+  .checks/install-checker-%-rule \
+  $(EOL)
+	$(MKDIR_P) $(@D)
+	$(CP_R) $(shell $(CAT) $<)/* $(@D)
+	$(RM_RF) $(@D)/build.log
+	$(TOUCH) $@
+
+.checks/pack-checker-$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-%-rule: \
+  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/%/.done \
+  $(EOL)
+	$(MKDIR_P) $(@D)
+	$(ECHO) $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/$* > $@
+
+.checks/pack-checker-$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)-%-rule: \
+  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/%/.done \
+  $(EOL)
+	$(MKDIR_P) $(@D)
+	$(ECHO) $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/$* > $@
+
+%.tar.gz: \
+  .checks/pack-checker-%-rule \
+  $(EOL)
+	$(TAR) \
+	  --directory=$(OUTPUTROOT) \
+	  --create \
+	  --file=$@ \
+	  --format=posix \
+	  --gzip \
+	  $(shell $(CAT) $<)
+
+if CHIPCRAFT_TOOLCHAIN_LINUX
+
+linux-dependent:
+
+if CHIPCRAFT_TOOLCHAIN_ARCH_MIPS
 LINUX_DEPENDENCY += \
-  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/mips/bin/mips-cc-elf-gcc \
+  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/mips/.done \
   $(EOL)
 
 LINUX_INSTALL_DEPENDENCY += \
-  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc \
+  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/.done \
   $(EOL)
 
-$(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/mips-cc-elf-gcc: \
-  $(LINUX_DEPENDENCY)
-	$(MKDIR_P) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
-	$(CP_R) \
-	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/mips \
-	  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/
-	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/build.log
+LINUX_UNINSTALL_DEPENDENCY += \
+  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) \
+  $(EOL)
 
 LINUX_PACK_DEPENDENCY += \
   $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-mips.tar.gz \
   $(EOL)
-
-$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-mips.tar.gz: $(LINUX_DEPENDENCY)
-	$(TAR) \
-	  --directory=$(OUTPUTROOT) \
-	  --create \
-	  --file=$@ \
-	  --format=posix \
-	  --gzip \
-	  $(@:%-mips.tar.gz=%)/mips
 endif CHIPCRAFT_TOOLCHAIN_ARCH_MIPS
 
 if CHIPCRAFT_TOOLCHAIN_ARCH_RISCV
-# one variable assignment per rule!
-$(WORKDIR)/toolchain/riscv/linux/.config: \
-  CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
-
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/riscv/bin/riscv-cc-elf-gcc: \
-  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:/usr/bin:$(PATH)
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/riscv/bin/riscv-cc-elf-gcc: \
-  $(WORKDIR)/toolchain/riscv/linux/.config \
-  $(PREREQUISITES) \
-  $(BOOTSTRAP) \
-  $(EOL)
-	$(CD) $(dir $(word 1,$^)) \
-	&& $(LOCALROOT)/bin/ct-ng build \
-	$(EOL)
-
 LINUX_DEPENDENCY += \
-  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/riscv/bin/riscv-cc-elf-gcc \
+  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/riscv/.done \
   $(EOL)
 
 LINUX_INSTALL_DEPENDENCY += \
-  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/riscv-cc-elf-gcc \
+  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/.done \
   $(EOL)
 
-$(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/riscv-cc-elf-gcc: \
-  $(LINUX_DEPENDENCY)
-	$(MKDIR_P) $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)
-	$(CP_R) \
-	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/riscv \
-	  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/
-	$(RM_RF) $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/build.log
+LINUX_INSTALL_DEPENDENCY += \
+  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET) \
+  $(EOL)
 
 LINUX_PACK_DEPENDENCY += \
   $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-riscv.tar.gz \
   $(EOL)
-
-$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-riscv.tar.gz: $(LINUX_DEPENDENCY)
-	$(TAR) \
-	  --directory=$(OUTPUTROOT) \
-	  --create \
-	  --file=$@ \
-	  --format=posix \
-	  --gzip \
-	  $(@:%-riscv.tar.gz=%)/riscv
 endif CHIPCRAFT_TOOLCHAIN_ARCH_RISCV
 
 pack-linux: \
@@ -412,7 +431,7 @@ install-data-local-linux: \
   $(EOL)
 
 uninstall-local-linux:
-	$(RM_RF) $(LINUX_INSTALL_DEPENDENCY)
+	$(RM_RF) $(LINUX_UNINSTALL_DEPENDENCY)
 
 else !CHIPCRAFT_TOOLCHAIN_LINUX
 pack-linux:
@@ -423,102 +442,44 @@ uninstall-local-linux:
 
 endif !CHIPCRAFT_TOOLCHAIN_LINUX
 
-WINDOWS_DEPENDENCY :=
-WINDOWS_INSTALL_DEPENDENCY :=
-WINDOWS_PACK_DEPENDENCY :=
-
 if CHIPCRAFT_TOOLCHAIN_WINDOWS
 
+windows-dependent:
+
 if CHIPCRAFT_TOOLCHAIN_ARCH_MIPS
-# one variable assignment per rule!
-$(WORKDIR)/toolchain/mips/windows/.config: \
-  CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
-
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/mips/bin/mips-cc-elf-gcc.exe: \
-  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:/usr/bin:$(PATH)
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/mips/bin/mips-cc-elf-gcc.exe: \
-  $(WORKDIR)/toolchain/mips/windows/.config \
-  $(PREREQUISITES) \
-  $(BOOTSTRAP) \
-  $(EOL)
-	$(CD) $(dir $(word 1,$^)) \
-	&& $(LOCALROOT)/bin/ct-ng build \
-	$(EOL)
-
 WINDOWS_DEPENDENCY += \
-  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/mips/bin/mips-cc-elf-gcc.exe \
+  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/mips/.done \
   $(EOL)
 
 WINDOWS_INSTALL_DEPENDENCY += \
-  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/mips-cc-elf-gcc.exe \
+  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/.done \
   $(EOL)
 
-$(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/mips-cc-elf-gcc.exe: \
-  $(WINDOWS_DEPENDENCY)
-	$(MKDIR_P) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
-	$(CP_R) \
-	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/mips \
-	  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/
-	$(RM_RF) $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/build.log
+WINDOWS_UNINSTALL_DEPENDENCY += \
+  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) \
+  $(EOL)
 
 WINDOWS_PACK_DEPENDENCY += \
   $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)-mips.tar.gz \
   $(EOL)
-
-$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)-mips.tar.gz: $(WINDOWS_DEPENDENCY)
-	$(TAR) \
-	  --directory=$(OUTPUTROOT) \
-	  --create \
-	  --file=$@ \
-	  --format=posix \
-	  --gzip \
-	  $(@:%-mips.tar.gz=%)/mips
 endif CHIPCRAFT_TOOLCHAIN_ARCH_MIPS
 
 if CHIPCRAFT_TOOLCHAIN_ARCH_RISCV
-# one variable assignment per rule!
-$(WORKDIR)/toolchain/riscv/windows/.config: \
-  CT_HOST_TRIPLET = $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
-
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/riscv/bin/riscv-cc-elf-gcc.exe: \
-  PATH := $(BOOTSTRAPROOT)/bin:$(LOCALROOT)/bin:/usr/bin:$(PATH)
-$(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/riscv/bin/riscv-cc-elf-gcc.exe: \
-  $(WORKDIR)/toolchain/riscv/windows/.config \
-  $(PREREQUISITES) \
-  $(BOOTSTRAP) \
-  $(EOL)
-	$(CD) $(dir $(word 1,$^)) \
-	&& $(LOCALROOT)/bin/ct-ng build \
-	$(EOL)
-
 WINDOWS_DEPENDENCY += \
-  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/riscv/bin/riscv-cc-elf-gcc.exe \
+  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/riscv/.done \
   $(EOL)
 
 WINDOWS_INSTALL_DEPENDENCY += \
-  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/riscv-cc-elf-gcc.exe \
+  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/.done \
   $(EOL)
 
-$(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/riscv-cc-elf-gcc.exe: \
-  $(WINDOWS_DEPENDENCY)
-	$(MKDIR_P) $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)
-	$(CP_R) \
-	  $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/riscv \
-	  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/
-	$(RM_RF) $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/build.log
+WINDOWS_UNINSTALL_DEPENDENCY += \
+  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET) \
+  $(EOL)
 
 WINDOWS_PACK_DEPENDENCY += \
   $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)-riscv.tar.gz \
   $(EOL)
-
-$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)-riscv.tar.gz: $(WINDOWS_DEPENDENCY)
-	$(TAR) \
-	  --directory=$(OUTPUTROOT) \
-	  --create \
-	  --file=$@ \
-	  --format=posix \
-	  --gzip \
-	  $(@:%-riscv.tar.gz=%)/riscv
 endif CHIPCRAFT_TOOLCHAIN_ARCH_RISCV
 
 pack-windows: \
@@ -530,7 +491,8 @@ install-data-local-windows: \
   $(EOL)
 
 uninstall-local-windows:
-	$(RM_RF) $(WINDOWS_INSTALL_DEPENDENCY)
+	$(RM_RF) $(WINDOWS_UNINSTALL_DEPENDENCY)
+	-$(RM_RF) .checks/install-checker
 
 else !CHIPCRAFT_TOOLCHAIN_WINDOWS
 pack-windows:
@@ -571,28 +533,26 @@ install-data-local: install-data-local-linux install-data-local-windows
 
 uninstall-local: uninstall-local-linux uninstall-local-windows
 
-.PHONY: clean-local-localroot
 clean-local-localroot:
 	-$(RM_RF) \
 	  $(LOCALROOT) \
 	  $(EOL)
 
-.PHONY: clean-local-bootstraproot
 clean-local-bootstraproot:
 	-$(RM_RF) \
 	  $(BOOTSTRAPROOT) \
 	  $(EOL)
 
-.PHONY: clean-local-outputroot
 clean-local-outputroot:
 	-$(RM_RF) \
 	  $(OUTPUTROOT) \
+	  .checks/install-checker* \
 	  $(EOL)
 
-.PHONY: clean-local-workdir
 clean-local-workdir:
 	-$(RM_RF) \
 	  $(WORKDIR) \
+	  .checks/build-checker* \
 	  $(EOL)
 
 clean-local: \
@@ -602,7 +562,11 @@ clean-local: \
   clean-local-workdir \
   $(EOL)
 	-$(RM_RF) \
+	  .checks \
 	  $(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET).tar.gz \
 	  $(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET).tar.gz \
 	  $(EOL)
+
+debug-print-%:
+	@echo $* = $($*)
 
