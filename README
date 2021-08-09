@@ -12,6 +12,10 @@ Supported platorms:
 - Linux x86_64
 - Windows
 
+Supported architectures:
+- ccproc (MIPS)
+- RISC-V
+
 Toolchain components will be cloned from company repositories (by themselves
 forks of open source projects). Note that component repositories all have branch
 named 'chipcraft-master', which contains any necessary patches.
@@ -39,6 +43,11 @@ only specific platforms at make step:
 will shut off rules for building toolchain for Linux hosts
 ./configure --disable-windows-toolchain
 will do the same for Windows hosts.
+Controlling target architecture can be done with:
+./configure --disable-mips
+will shut off rules for building toolchain for ccproc (MIPS) architecture
+./configure --disable-riscv
+will do the same for RISC-V architecture.
 After configuration is done you can invoke make like:
 make linux
 to only build Linux toolchain and
@@ -128,7 +137,7 @@ Build flow:
                    install        +---------------------------------------v------+
     make install+---------------->+                                              |
                    on host        |   $(prefix)/mips-cc-elf/$(toolchain)         |
-                                  |                                              |
+                                  |   $(prefix)/riscv-cc-elf/$(toolchain)        |
                                   |                                              |
                                   +----------------------------------------------+
 
