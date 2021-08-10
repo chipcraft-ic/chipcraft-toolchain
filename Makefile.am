@@ -359,6 +359,14 @@ $(DESTDIR)/$(prefix)/%/.done: \
 	$(RM_RF) $(@D)/build.log
 	$(TOUCH) $@
 
+$(DESTDIR)/$(prefix)/mips-cc-elf/%/bin/chipcraft-toolchain-triplet:
+	$(MKDIR_P) $(@D)
+	$(ECHO) "mips-cc-elf" > $@
+
+$(DESTDIR)/$(prefix)/riscv-cc-elf/%/bin/chipcraft-toolchain-triplet:
+	$(MKDIR_P) $(@D)
+	$(ECHO) "riscv-cc-elf" > $@
+
 .checks/pack-checker-$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)-%-rule: \
   $(OUTPUTROOT)/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/%/.done \
   $(EOL)
@@ -393,6 +401,7 @@ LINUX_DEPENDENCY += \
 
 LINUX_INSTALL_DEPENDENCY += \
   $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/.done \
+  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/chipcraft-toolchain-triplet \
   $(EOL)
 
 LINUX_UNINSTALL_DEPENDENCY += \
@@ -411,6 +420,7 @@ LINUX_DEPENDENCY += \
 
 LINUX_INSTALL_DEPENDENCY += \
   $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/.done \
+  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_BOOTSTRAP_TRIPLET)/bin/chipcraft-toolchain-triplet \
   $(EOL)
 
 LINUX_UNINSTALL_DEPENDENCY += \
@@ -453,6 +463,7 @@ WINDOWS_DEPENDENCY += \
 
 WINDOWS_INSTALL_DEPENDENCY += \
   $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/.done \
+  $(DESTDIR)/$(prefix)/mips-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/chipcraft-toolchain-triplet \
   $(EOL)
 
 WINDOWS_UNINSTALL_DEPENDENCY += \
@@ -471,6 +482,7 @@ WINDOWS_DEPENDENCY += \
 
 WINDOWS_INSTALL_DEPENDENCY += \
   $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/.done \
+  $(DESTDIR)/$(prefix)/riscv-cc-elf/$(CHIPCRAFT_TOOLCHAIN_WINDOWS_TRIPLET)/bin/chipcraft-toolchain-triplet \
   $(EOL)
 
 WINDOWS_UNINSTALL_DEPENDENCY += \
