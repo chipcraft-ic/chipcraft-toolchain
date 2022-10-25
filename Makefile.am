@@ -290,9 +290,6 @@ CHIPCRAFT_GENERALIZE_BINARIES := \
 	-mno-aes \
 	-mno-bmi \
 	-mno-bmi2 \
-	-mno-clflushopt \
-	-mno-clwb \
-	-mno-clzero \
 	-mno-f16c \
 	-mno-fma \
 	-mno-fma4 \
@@ -302,24 +299,18 @@ CHIPCRAFT_GENERALIZE_BINARIES := \
 	-mno-lwp \
 	-mno-lzcnt \
 	-mno-movbe \
-	-mno-mwaitx \
 	-mno-pclmul \
-	-mno-pku \
 	-mno-popcnt \
 	-mno-prefetchwt1 \
 	-mno-prfchw \
-	-mno-rdpid \
 	-mno-rdrnd \
 	-mno-rdseed \
 	-mno-rtm \
-	-mno-sgx \
 	-mno-sha \
 	-mno-tbm \
 	-mno-xop \
 	-mno-xsave \
-	-mno-xsavec \
 	-mno-xsaveopt \
-	-mno-xsaves \
 	$(EOL)
 
 if CHIPCRAFT_TOOLCHAIN_LINUX
