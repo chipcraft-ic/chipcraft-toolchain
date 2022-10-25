@@ -265,6 +265,63 @@ CT_EXTRA_LDFLAGS_FOR_BUILD = \
 
 CT_EXTRA_LDFLAGS_FOR_HOST =
 
+# Disable all extended instructions.
+# We want the binaries to work
+# on widest possible range of x86_64 cpus.
+# Note: MMX and SSE are explicitly allowed
+CHIPCRAFT_GENERALIZE_BINARIES := \
+	-march=x86-64 \
+	-mtune=generic \
+	-mmmx \
+	-msse \
+	-mno-sse2 \
+	-mno-sse3 \
+	-mno-ssse3 \
+	-mno-sse4 \
+	-mno-sse4a \
+	-mno-sse4.1 \
+	-mno-sse4.2 \
+	-mno-avx \
+	-mno-avx2 \
+	-mno-3dnow \
+	-mno-3dnowa \
+	-mno-abm \
+	-mno-adx \
+	-mno-aes \
+	-mno-bmi \
+	-mno-bmi2 \
+	-mno-clflushopt \
+	-mno-clwb \
+	-mno-clzero \
+	-mno-f16c \
+	-mno-fma \
+	-mno-fma4 \
+	-mno-fsgsbase \
+	-mno-fxsr \
+	-mno-hle \
+	-mno-lwp \
+	-mno-lzcnt \
+	-mno-movbe \
+	-mno-mwaitx \
+	-mno-pclmul \
+	-mno-pku \
+	-mno-popcnt \
+	-mno-prefetchwt1 \
+	-mno-prfchw \
+	-mno-rdpid \
+	-mno-rdrnd \
+	-mno-rdseed \
+	-mno-rtm \
+	-mno-sgx \
+	-mno-sha \
+	-mno-tbm \
+	-mno-xop \
+	-mno-xsave \
+	-mno-xsavec \
+	-mno-xsaveopt \
+	-mno-xsaves \
+	$(EOL)
+
 if CHIPCRAFT_TOOLCHAIN_LINUX
 LINUX_DEPENDENCY = linux-dependent
 LINUX_INSTALL_DEPENDENCY = linux-dependent
@@ -322,6 +379,7 @@ $(WORKDIR)/toolchain/%/.config: \
 	    s|!CT_EXTRA_CFLAGS_FOR_BUILD!|$(CT_EXTRA_CFLAGS_FOR_BUILD)|; \
 	    s|!CT_EXTRA_LDFLAGS_FOR_BUILD!|$(CT_EXTRA_LDFLAGS_FOR_BUILD)|; \
 	    s|!CT_EXTRA_LDFLAGS_FOR_HOST!|$(CT_EXTRA_LDFLAGS_FOR_HOST)|; \
+	    s|!CT_GENERALIZE_BINARIES!|$(CHIPCRAFT_GENERALIZE_BINARIES)|; \
 	    $(SED_SRCDIR_SUBSTITUTIONS) \
 	  " \
 	$(shell $(CAT) $<) > $@ \
