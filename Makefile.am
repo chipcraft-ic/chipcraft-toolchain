@@ -284,7 +284,6 @@ CHIPCRAFT_GENERALIZE_BINARIES := \
 	-mno-avx \
 	-mno-avx2 \
 	-mno-3dnow \
-	-mno-3dnowa \
 	-mno-abm \
 	-mno-adx \
 	-mno-aes \
